@@ -15,6 +15,7 @@ def create_event(data, host_id, image_url=None):
 
         "tags": data.get("tags", []),
         "image_url": image_url,
+        "event_open": True,
 
         "attendees": [host_id],  # host automatically joins
 
