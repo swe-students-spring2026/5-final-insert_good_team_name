@@ -11,7 +11,7 @@ def valid_event_data():
         "date": "2026-05-01",
         "time": "18:00",
         "capacity": "4",
-        "tags": ["food", "casual"],
+        "tags": ["food", "casual", "fun"],
         "location": "NYC",
     }
 
@@ -23,7 +23,7 @@ def test_create_event_success():
         "date": "2026-05-01",
         "time": "19:00",
         "capacity": "6",
-        "tags": ["pizza", "casual"],
+        "tags": ["pizza", "casual", "friends"],
         "location": "NYC",
     }
 
@@ -37,7 +37,7 @@ def test_create_event_success():
     assert event["time"] == "19:00"
     assert event["host_id"] == host_id
     assert event["capacity"] == 6
-    assert event["tags"] == ["pizza", "casual"]
+    assert event["tags"] == ["pizza", "casual", "friends"]
     assert event["attendees"] == [host_id]
     assert event["image_url"] is None
     assert isinstance(event["created_at"], datetime)
@@ -99,12 +99,27 @@ def test_validate_event_capacity_too_low():
 
 def test_validate_event_too_many_tags():
     data = valid_event_data()
-    data["tags"] = ["food", "casual", "music", "games"]
+    data["tags"] = ["food", "casual", "music", "games", "extra", "another"]
 
     error = validate_event(data)
 
-    assert error == "You can select up to 3 tags only."
+    assert error == "You must select between 3 and 5 tags."
 
+def test_validate_event_too_few_tags():
+    data = valid_event_data()
+    data["tags"] = ["food"]  
+
+    error = validate_event(data)
+
+    assert error == "You must select between 3 and 5 tags."
+
+def test_validate_event_tags_as_string():
+    data = valid_event_data()
+    data["tags"] = "food"
+
+    error = validate_event(data)
+
+    assert error == "You must select between 3 and 5 tags."
 
 def test_validate_event_success():
     data = valid_event_data()
