@@ -1,10 +1,16 @@
 """DinnerMeet Flask application."""
 
 import os
+import random
+import logging
+from datetime import datetime
+from typing import Dict
 
 from bson import ObjectId
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_socketio import SocketIO, emit, join_room, leave_room
+from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 from models.user import create_user
 from models.event_model import create_event
@@ -19,13 +25,36 @@ def get_best_event_match(user, events):
 
     return events[0]
 
+
 load_dotenv()
 
+
+#loggling
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+class Config:
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev")
+    DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ('true', "1", "t")
+    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*")
+
+
 app = Flask(__name__)
+app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 app.secret_key = os.environ.get("SECRET_KEY", "dev")
+app.cors_origins
+
+
+#Handle Reverse PRoxy
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+
 
 class User(UserMixin):
     def __init__(self, user_data):
@@ -213,6 +242,7 @@ def reject_event(event_id):
 def profile():
     """Show user profile."""
     return render_template("home.html")
+
 
 
 if __name__ == "__main__":
