@@ -4,7 +4,7 @@ import os
 import random
 import logging
 from datetime import datetime
-from typing import Dict
+from pymongo import MongoClient
 
 from bson import ObjectId
 from flask import Flask, render_template, request, redirect, url_for, session, flash
@@ -29,7 +29,7 @@ def get_best_event_match(user, events):
 load_dotenv()
 
 
-#loggling
+# loggling
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -47,13 +47,26 @@ app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
-app.secret_key = os.environ.get("SECRET_KEY", "dev")
-app.cors_origins
 
 
-#Handle Reverse PRoxy
+# Handle Reverse PRoxy
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
+
+# Set up the Socket
+socketIO = SocketIO(
+    app,
+    cors_allowed_origins=app.config["CORS_ORIGINS"],
+    logger=True,
+    engineio_logger=True
+)
+
+
+# Database
+client = MongoClient(os.environ.get("MONGO_URI"))
+db = client["dinnermeet"]
+
+messages_collection = db["messages"]
 
 
 class User(UserMixin):
@@ -136,6 +149,16 @@ def logout():
     logout_user()
     flash("You have been logged out.", "success")
     return redirect(url_for("login"))
+
+
+# Make a connection
+@socketIO.event
+def connect():
+    """handles conenction"""
+    if not current_user.is_authenticated:
+        return False
+    
+    logger.info(f"(current_user.id) connected")
 
 
 @app.route("/events")
