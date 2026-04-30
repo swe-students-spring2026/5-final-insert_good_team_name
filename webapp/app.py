@@ -170,6 +170,34 @@ def home():
 
     return render_template("home.html", event=best_event)
 
+from bson.objectid import ObjectId
+
+@app.route("/events/<event_id>")
+@login_required
+def view_event(event_id):
+    user_id = ObjectId(current_user.id)
+
+    event = events_collection.find_one({"_id": ObjectId(event_id)})
+
+    if not event:
+        return "Event not found", 404
+
+    # Restrict access (chat-only logic enforcement)
+    if (
+        user_id != event["host_id"]
+        and user_id not in event.get("attendees", [])
+        and user_id not in event.get("join_requests", [])
+    ):
+        return "Unauthorized", 403
+
+    host = users_collection.find_one({"_id": event["host_id"]})
+
+    return render_template(
+        "event.html",
+        event=event,
+        host=host
+    )
+
 @app.route("/events/<event_id>/reject", methods=["POST"])
 @login_required
 def reject_event(event_id):
