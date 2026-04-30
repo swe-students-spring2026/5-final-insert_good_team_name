@@ -9,6 +9,15 @@ from dotenv import load_dotenv
 from models.user import create_user
 from models.event_model import create_event
 from utils.validation import validate_signup, validate_login, validate_event
+from db import users_collection, events_collection
+from bson import ObjectId
+
+# This is a placeholder function for the matching algorithm. It currently just returns the first event.
+def get_best_event_match(user, events):
+    if not events:
+        return None
+
+    return events[0]
 
 load_dotenv()
 
@@ -50,7 +59,6 @@ def login():
         return render_template("login.html")
     
     data = request.form
-    users_collection = None  # Replace with actual database collection
     
     error, user_data = validate_login(data, users_collection)
 
@@ -73,8 +81,6 @@ def signup():
 
     data = request.form
 
-    # Need to implement database then uncomment this to check for existing user
-    users_collection = None  # Replace with actual database collection
     error = validate_signup(data, users_collection)
     if error:
         return render_template("signup.html", error=error)
@@ -124,21 +130,49 @@ def create_event_route():
     if error:
         return render_template("create_event.html", error=error)
     
-    event = create_event(data, current_user.id) 
-
-    # Replace with actual database collections
-    events_collection = None
-    users_collection = None
+    event = create_event(data, current_user.id)
 
     result = events_collection.insert_one(event)
 
     users_collection.update_one(
-        {"_id": current_user.id},
+        {"_id": ObjectId(current_user.id)},
         {"$push": {"created_events": result.inserted_id}}
     )
 
     flash("Event created successfully.", "success")
     return redirect(url_for("events"))
+
+@app.route("/home")
+@login_required
+def home():
+    user = users_collection.find_one({"_id": ObjectId(current_user.id)})
+
+    rejected_events = user.get("rejected_events", [])
+    joined_events = user.get("joined_events", [])
+    pending_events = user.get("pending_events", [])
+
+    events = list(events_collection.find({
+        "event_open": True,
+        "host_id": {"$ne": current_user.id},
+        "_id": {
+            "$nin": rejected_events + joined_events + pending_events
+        }
+    }))
+
+    #TODO: create a function to calculate best match based on matching service algorithm
+    best_event = get_best_event_match(user, events)
+
+    return render_template("home.html", event=best_event)
+
+@app.route("/events/<event_id>/reject", methods=["POST"])
+@login_required
+def reject_event(event_id):
+    users_collection.update_one(
+        {"_id": ObjectId(current_user.id)},
+        {"$addToSet": {"rejected_events": ObjectId(event_id)}}
+    )
+
+    return redirect(url_for("home"))
 
 @app.route("/profile")
 @login_required

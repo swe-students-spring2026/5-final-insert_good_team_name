@@ -23,6 +23,8 @@ def create_user(data):
 
         "created_events": [],
         "joined_events": [],
+        "rejected_events": [],
+        "pending_events": [],
 
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),

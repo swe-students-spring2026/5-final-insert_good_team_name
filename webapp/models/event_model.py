@@ -25,6 +25,9 @@ def create_event(data, host_id, image_url=None):
 
         # Host automatically joins
         "attendees": [host_id],
+        # Pending and rejected lists to manage join requests
+        "join_requests": [],
+        "rejected_requests": [],
 
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
