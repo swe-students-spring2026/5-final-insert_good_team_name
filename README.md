@@ -1,5 +1,7 @@
 # Final Project
 
+[![CI](https://github.com/swe-students-spring2026/5-final-insert_good_team_name/actions/workflows/ci.yml/badge.svg)](https://github.com/swe-students-spring2026/5-final-insert_good_team_name/actions/workflows/ci.yml)
+
 An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
 
 ## Run Locally
