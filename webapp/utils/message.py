@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def create_message(room_id: str, sender: str, message: str) -> dict:
     """Create a message obj for db storage"""
     return {

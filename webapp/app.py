@@ -4,9 +4,7 @@ import os
 import random
 import logging
 from datetime import datetime
-from pymongo import MongoClient
 
-from bson import ObjectId
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -60,13 +58,6 @@ socketIO = SocketIO(
     logger=True,
     engineio_logger=True
 )
-
-
-# Database
-client = MongoClient(os.environ.get("MONGO_URI"))
-db = client["dinnermeet"]
-
-messages_collection = db["messages"]
 
 
 class User(UserMixin):
