@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 def create_user(data):
     return {
         "email": data["email"],

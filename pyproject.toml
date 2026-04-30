@@ -9,3 +9,21 @@ pythonpath = [
 testpaths = [
     "tests",
 ]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.pylint.main]
+py-version = "3.11"
+
+[tool.pylint.messages_control]
+disable = [
+    "missing-module-docstring",
+    "missing-function-docstring",
+    "invalid-name",
+]
+
+[tool.pylint.format]
+max-line-length = 88
