@@ -70,13 +70,26 @@ def validate_event(data):
     required_fields = ["title", "datetime", "capacity", "description"]
 
     for field in required_fields:
-        if not data.get(field):
+        if field not in data or str(data[field]).strip() == "":
             return f"{field} is required."
 
-    if int(data["capacity"]) < 3:
-        return "Capacity must be at least 3."
+    try:
+        capacity = int(data["capacity"])
+        if capacity < 3:
+            return "Capacity must be at least 3."
+    except ValueError:
+        return "Capacity must be a number."
 
-    if "tags" in data and len(data["tags"]) > 3:
-        return "You can select up to 3 tags only."
+    tags = data.get("tags", [])
 
+    # Handle dropdown edge case where it might return a string instead of a list
+    if isinstance(tags, str):
+        tags = [tags]
+
+    if not isinstance(tags, list):
+        return "Tags must be a list."
+
+    if len(tags) < 3 or len(tags) > 5:
+        return "You must select between 3 and 5 tags."
+    
     return None
