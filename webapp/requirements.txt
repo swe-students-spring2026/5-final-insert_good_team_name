@@ -1,2 +1,6 @@
 flask
 python-dotenv
+flask-login==0.6.2; python_version >= '3.7'
+werkzeug==2.3.4; python_version >= '3.7'
+pytest==7.4.0; python_version >= '3.7'
+pytest-cov==3.0.0; python_version >= '3.7'

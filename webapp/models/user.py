@@ -17,12 +17,14 @@ def create_user(data):
             "smokes": data.get("smokes"),
         },
 
-        "dietary_restrictions": data.get("dietary_restrictions", []),
+        "dietary_restrictions": data.get("dietary_restrictions", []), #Change to preferences?
         "hobbies": data.get("hobbies", []),
         "interests": data.get("interests", []),
 
         "created_events": [],
         "joined_events": [],
+        "rejected_events": [],
+        "pending_events": [],
 
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
