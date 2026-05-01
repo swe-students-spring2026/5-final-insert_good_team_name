@@ -8,36 +8,35 @@ def compute_match_score(user, event) -> float:
 
     user = {
         "age": int,
-        "interests": List[str],
+        "tags": List[str],
         "location": (lat, lon),
         "preferred_group_ranges": List[(min, max)]
     }
 
     event = {
-        "interests": List[str],
+        "tags": List[str],
         "location": (lat, lon),
-        "members": List[user]
+        "attendees": List[user],
+        "capacity": int
     }
     """
 
     # Event Score
 
-    interest_event = list_similarity(user["interests"], event["interests"])
+    interest_event = list_similarity(user["tags"], event["tags"])
     dist_score = distance_score(user["location"], event["location"])
 
-
-
     event_score = (
-        0.6 * interest_event +
-        0.4 * dist_score
+        0.7 * interest_event +
+        0.3 * dist_score
     )
 
     # Group Score
 
-    members = event["members"]
+    members = event["attendees"]
 
     interest_group = sum(
-        list_similarity(user["interests"], m["interests"])
+        list_similarity(user["tags"], m["tags"])
         for m in members
     ) / len(members)
 
@@ -45,13 +44,19 @@ def compute_match_score(user, event) -> float:
     age_comp = age_score(user["age"], group_ages)
 
     group_score = (
-        0.5 * interest_group +
-        0.5 * age_comp
+        0.7 * interest_group +
+        0.3 * age_comp
     )
+
+    # Size Score
+
+    intended_size = event.get("capacity", 6)
+    ranges = user.get("preferred_group_ranges", [(3, 10)])
+    size_score1 = size_score(intended_size, ranges)
 
     # Final Score
 
-    final_score = 0.3 * event_score + 0.5 * group_score
+    final_score = 0.3 * event_score + 0.5 * group_score + 0.2 * size_score1
 
     return final_score
 
@@ -60,9 +65,15 @@ def list_similarity(a: List[str], b: List[str]) -> float:
     set_a, set_b = set(a), set(b)
     if not set_a and not set_b:
         return 1.0
+
     intersection = len(set_a & set_b)
+
+    covered = intersection / len(set_a) if set_a else 1.0
+
     union = len(set_a | set_b)
-    return intersection / union if union > 0 else 0.0
+    overlap = intersection / union if union else 0.0
+
+    return 0.7 * covered + 0.3 * overlap
 
 
 def haversine_distance_km(loc1: Tuple[float, float], loc2: Tuple[float, float]) -> float:
@@ -93,6 +104,14 @@ def distance_to_range(n: int, r_min: int, r_max: int) -> int:
     if r_min <= n <= r_max:
         return 0
     return min(abs(n - r_min), abs(n - r_max))
+
+
+def size_score(n: int, ranges: List[Tuple[int, int]]) -> float:
+    if not ranges:
+        return 0.5
+
+    best_distance = min(distance_to_range(n, r[0], r[1]) for r in ranges)
+    return math.exp(-best_distance / 3)
 
 
 def age_score(user_age: int, group_ages: List[int]) -> float:

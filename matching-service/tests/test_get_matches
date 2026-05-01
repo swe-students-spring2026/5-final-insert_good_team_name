@@ -1,0 +1,71 @@
+from app.get_matches import rank_events_for_user, get_best_event_for_user
+
+def make_user(age, interests, loc=(0, 0), ranges=[(3, 10)]):
+    return {
+        "age": age,
+        "tags": interests,
+        "location": loc,
+        "preferred_group_ranges": ranges
+    }
+
+def make_event(interests, members, loc=(0, 0), intended_size=6):
+    return {
+        "tags": interests,
+        "location": loc,
+        "attendees": members,
+        "capacity": intended_size
+    }
+
+def test_rank_sorted():
+    user = make_user(25, ["outdoors"])
+
+    e1 = make_event(["outdoors"], [make_user(25, ["outdoors"])])
+    e2 = make_event(["gaming"], [make_user(25, ["gaming"])])
+    e3 = make_event(["outdoors", "fitness"], [make_user(25, ["outdoors"])])
+
+    ranked = rank_events_for_user(user, [e2, e1, e3])
+
+    scores = [s for _, s in ranked]
+
+    print("Sorted scores:", scores)
+    assert scores == sorted(scores, reverse=True)
+
+def test_best_matches_rank():
+    user = make_user(25, ["outdoors"])
+
+    e1 = make_event(["outdoors"], [make_user(25, ["outdoors"])])
+    e2 = make_event(["gaming"], [make_user(25, ["gaming"])])
+
+    ranked = rank_events_for_user(user, [e1, e2])
+    best_event, best_score = get_best_event_for_user(user, [e1, e2])
+
+    print("Best vs ranked:", best_score, ranked[0][1])
+
+    assert ranked[0][0] == best_event
+    assert abs(ranked[0][1] - best_score) < 1e-6
+
+def test_empty_events():
+    user = make_user(25, ["outdoors"])
+
+    best_event, best_score = get_best_event_for_user(user, [])
+
+    print("Empty result:", best_event, best_score)
+
+    assert best_event is None
+    assert best_score == 0.0
+
+    ranked = rank_events_for_user(user, [])
+    assert ranked == []
+
+def test_single_event():
+    user = make_user(25, ["outdoors"])
+    event = make_event(["outdoors"], [make_user(25, ["outdoors"])])
+
+    best_event, best_score = get_best_event_for_user(user, [event])
+    ranked = rank_events_for_user(user, [event])
+
+    print("Single:", best_score)
+
+    assert best_event == event
+    assert ranked[0][0] == event
+    assert abs(ranked[0][1] - best_score) < 1e-6
