@@ -105,13 +105,15 @@ def test_validate_event_too_many_tags():
 
     assert error == "You must select between 3 and 5 tags."
 
+
 def test_validate_event_too_few_tags():
     data = valid_event_data()
-    data["tags"] = ["food"]  
+    data["tags"] = ["food"]
 
     error = validate_event(data)
 
     assert error == "You must select between 3 and 5 tags."
+
 
 def test_validate_event_tags_as_string():
     data = valid_event_data()
@@ -120,6 +122,7 @@ def test_validate_event_tags_as_string():
     error = validate_event(data)
 
     assert error == "You must select between 3 and 5 tags."
+
 
 def test_validate_event_success():
     data = valid_event_data()
