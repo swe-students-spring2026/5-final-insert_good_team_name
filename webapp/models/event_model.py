@@ -5,6 +5,7 @@ def create_event(data, host_id, image_url=None):
     return {
         "title": data["title"],
         # REQUIRED fields
+        # REQUIRED fields
         "description": data["description"],
         "location": data["location"],
 
@@ -14,6 +15,11 @@ def create_event(data, host_id, image_url=None):
         "capacity": int(data["capacity"]),
         # Defaults
         "dining": bool(data.get("dining", False)),
+        "dining_tags": (
+            data.get("dining_tags", [])
+            if isinstance(data.get("dining_tags", []), list)
+            else []
+        ),
         "dining_tags": (
             data.get("dining_tags", [])
             if isinstance(data.get("dining_tags", []), list)
@@ -30,3 +36,4 @@ def create_event(data, host_id, image_url=None):
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
     }
+
