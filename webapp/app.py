@@ -43,13 +43,10 @@ def load_user(user_id):
 
 
 @app.route("/")
-@login_required
 def index():
-    """Redirect to home or login."""
-    #if session.get("user_id"):
-    #    return render_template("home.html")
-    #return redirect(url_for("login"))
-    return render_template("home.html")
+    if current_user.is_authenticated:
+        return render_template("home.html")
+    return render_template("landing.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -212,7 +209,7 @@ def reject_event(event_id):
 @login_required
 def profile():
     """Show user profile."""
-    return render_template("home.html")
+    return render_template("profile.html")
 
 
 if __name__ == "__main__":

@@ -9,13 +9,19 @@
 <body>
     <nav>
         <a href="/" class="nav-logo">DinnerMeet</a>
+        {% if current_user.is_authenticated %}
         <ul>
-            <li><a href="/events">Events</a></li>
-            <li><a href="/events/create">Create Event</a></li>
+            <li><a href="/">Browse</a></li>
+            <li><a href="/events/create">Host Event</a></li>
             <li><a href="/messages">Messages</a></li>
             <li><a href="/profile">Profile</a></li>
-            <li><a href="/logout">Log Out</a></li>
         </ul>
+        {% else %}
+        <ul class="nav-auth">
+            <li><a href="/login">Log In</a></li>
+            <li><a href="/signup">Sign Up</a></li>
+        </ul>
+        {% endif %}
     </nav>
 
     <main>

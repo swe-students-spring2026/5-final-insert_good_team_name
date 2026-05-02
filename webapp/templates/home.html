@@ -2,13 +2,33 @@
 {% block title %}Home — DinnerMeet{% endblock %}
 
 {% block content %}
-<div class="home-container">
-    <h1>Welcome, {{ session.get('first_name', 'there') }}!</h1>
-    <p>Find dinner events and make new friends in NYC.</p>
+<div class="swipe-container">
+    {% if event %}
+        <div class="event-swipe-card">
+            <h2>{{ event.title }}</h2>
+            <p class="event-meta">{{ event.datetime }}</p>
+            {% if event.description %}
+                <p class="event-desc">{{ event.description }}</p>
+            {% endif %}
+            <p class="event-meta"><strong>Capacity:</strong> {{ event.capacity }} guests</p>
+            {% if event.host_name %}
+                <p class="event-meta"><strong>Host:</strong> {{ event.host_name }}</p>
+            {% endif %}
 
-    <div class="home-links">
-        <a href="/events" class="btn">Browse Events</a>
-        <a href="/events/create" class="btn">Host an Event</a>
-    </div>
+            <div class="swipe-actions">
+                <form method="POST" action="/events/{{ event._id }}/reject">
+                    <button type="submit" class="btn-reject">✕ Pass</button>
+                </form>
+                <form method="POST" action="/events/{{ event._id }}/join">
+                    <button type="submit" class="btn-join">✓ Join</button>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="no-events">
+            <p>No more events to browse right now.</p>
+            <a href="/events/create" class="btn">Host your own!</a>
+        </div>
+    {% endif %}
 </div>
 {% endblock %}
