@@ -13,9 +13,9 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev")
 @app.route("/")
 def index():
     """Redirect to home or login."""
-    #if session.get("user_id"):
+    # if session.get("user_id"):
     #    return render_template("home.html")
-    #return redirect(url_for("login"))
+    # return redirect(url_for("login"))
     return render_template("home.html")
 
 
@@ -54,7 +54,9 @@ def create_event():
     """Create a new event."""
     if request.method == "GET":
         return render_template("create_event.html")
-    return render_template("create_event.html", error="Create event not yet implemented.")
+    return render_template(
+        "create_event.html", error="Create event not yet implemented."
+    )
 
 
 @app.route("/profile")
