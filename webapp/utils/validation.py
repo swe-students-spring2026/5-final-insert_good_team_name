@@ -1,5 +1,6 @@
 from werkzeug.security import check_password_hash
 
+
 def validate_signup(data, users_collection):
     """
     This function validates the signup form data. It checks for:
@@ -28,7 +29,7 @@ def validate_signup(data, users_collection):
 
     if "@" not in data["email"]:
         return "Please enter a valid email."
-    
+
     if data["email"] != data["confirm_email"]:
         return "Emails do not match."
 
@@ -36,6 +37,7 @@ def validate_signup(data, users_collection):
         return "An account with this email already exists."
 
     return None
+
 
 def validate_login(data, users_collection):
     """
@@ -57,6 +59,7 @@ def validate_login(data, users_collection):
         return "Incorrect password.", None
 
     return None, user
+
 
 def validate_event(data):
     """
@@ -91,5 +94,5 @@ def validate_event(data):
 
     if len(tags) < 3 or len(tags) > 5:
         return "You must select between 3 and 5 tags."
-    
+
     return None

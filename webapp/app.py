@@ -6,15 +6,23 @@ import logging
 from datetime import datetime
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_login import (
+    LoginManager,
+    UserMixin,
+    login_user,
+    logout_user,
+    login_required,
+    current_user,
+)
 from flask_socketio import SocketIO, emit, join_room, leave_room
 from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
 from models.user import create_user
 from models.event_model import create_event
 from utils.validation import validate_signup, validate_login, validate_event
-from db import users_collection, events_collection
+from webapp.db import users_collection, events_collection
 from bson import ObjectId
+
 
 # This is a placeholder function for the matching algorithm. It currently just returns the first event.
 def get_best_event_match(user, events):
@@ -29,14 +37,14 @@ load_dotenv()
 
 # loggling
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev")
-    DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ('true', "1", "t")
+    DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
     CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*")
 
 
@@ -56,7 +64,7 @@ socketIO = SocketIO(
     app,
     cors_allowed_origins=app.config["CORS_ORIGINS"],
     logger=True,
-    engineio_logger=True
+    engineio_logger=True,
 )
 
 
@@ -79,9 +87,9 @@ def load_user(user_id):
 @login_required
 def index():
     """Redirect to home or login."""
-    #if session.get("user_id"):
+    # if session.get("user_id"):
     #    return render_template("home.html")
-    #return redirect(url_for("login"))
+    # return redirect(url_for("login"))
     return render_template("home.html")
 
 
@@ -90,14 +98,14 @@ def login():
     """Render login page."""
     if request.method == "GET":
         return render_template("login.html")
-    
+
     data = request.form
-    
+
     error, user_data = validate_login(data, users_collection)
 
     if error:
         return render_template("login.html", error=error)
-    
+
     user = User(user_data)
     login_user(user)
 
@@ -107,7 +115,7 @@ def login():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    """Render signup page. 
+    """Render signup page.
     Create a new user and log them in."""
     if request.method == "GET":
         return render_template("signup.html")
@@ -148,7 +156,7 @@ def connect():
     """handles conenction"""
     if not current_user.is_authenticated:
         return False
-    
+
     logger.info(f"(current_user.id) connected")
 
 
@@ -165,31 +173,33 @@ def create_event_route():
     """Create a new event."""
     if request.method == "GET":
         return render_template("create_event.html")
-    
+
     data = request.form.to_dict()
-    data["tags"] = request.form.getlist("tags")  
+    data["tags"] = request.form.getlist("tags")
 
     error = validate_event(data)
     if error:
         return render_template("create_event.html", error=error)
-    
+
     event = create_event(data, current_user.id)
 
     result = events_collection.insert_one(event)
 
     users_collection.update_one(
         {"_id": ObjectId(current_user.id)},
-        {"$push": {"created_events": result.inserted_id}}
+        {"$push": {"created_events": result.inserted_id}},
     )
 
     flash("Event created successfully.", "success")
     return redirect(url_for("events"))
+
 
 @app.route("/messages")
 @login_required
 def messages():
     """Show all message conversations."""
     return render_template("messages.html", conversations=[])
+
 
 @app.route("/home")
 @login_required
@@ -200,20 +210,24 @@ def home():
     joined_events = user.get("joined_events", [])
     pending_events = user.get("pending_events", [])
 
-    events = list(events_collection.find({
-        "event_open": True,
-        "host_id": {"$ne": current_user.id},
-        "_id": {
-            "$nin": rejected_events + joined_events + pending_events
-        }
-    }))
+    events = list(
+        events_collection.find(
+            {
+                "event_open": True,
+                "host_id": {"$ne": current_user.id},
+                "_id": {"$nin": rejected_events + joined_events + pending_events},
+            }
+        )
+    )
 
-    #TODO: create a function to calculate best match based on matching service algorithm
+    # TODO: create a function to calculate best match based on matching service algorithm
     best_event = get_best_event_match(user, events)
 
     return render_template("home.html", event=best_event)
 
+
 from bson.objectid import ObjectId
+
 
 @app.route("/events/<event_id>")
 @login_required
@@ -235,28 +249,25 @@ def view_event(event_id):
 
     host = users_collection.find_one({"_id": event["host_id"]})
 
-    return render_template(
-        "event.html",
-        event=event,
-        host=host
-    )
+    return render_template("event.html", event=event, host=host)
+
 
 @app.route("/events/<event_id>/reject", methods=["POST"])
 @login_required
 def reject_event(event_id):
     users_collection.update_one(
         {"_id": ObjectId(current_user.id)},
-        {"$addToSet": {"rejected_events": ObjectId(event_id)}}
+        {"$addToSet": {"rejected_events": ObjectId(event_id)}},
     )
 
     return redirect(url_for("home"))
+
 
 @app.route("/profile")
 @login_required
 def profile():
     """Show user profile."""
     return render_template("home.html")
-
 
 
 if __name__ == "__main__":

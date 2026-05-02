@@ -41,7 +41,10 @@ def test_validate_signup_missing_required_field():
 
     users_collection = FakeUsersCollection()
 
-    assert validate_signup(data, users_collection) == "Please fill out all required fields."
+    assert (
+        validate_signup(data, users_collection)
+        == "Please fill out all required fields."
+    )
 
 
 def test_validate_signup_passwords_do_not_match():
@@ -75,7 +78,11 @@ def test_validate_signup_existing_user():
 
     users_collection = FakeUsersCollection(existing_user={"email": "test@example.com"})
 
-    assert validate_signup(data, users_collection) == "An account with this email already exists."
+    assert (
+        validate_signup(data, users_collection)
+        == "An account with this email already exists."
+    )
+
 
 def test_validate_login_success():
     data = {

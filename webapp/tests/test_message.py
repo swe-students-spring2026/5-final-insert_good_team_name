@@ -1,5 +1,5 @@
-from datetime import datetime
 from utils.message import create_message, save_message, get_messages
+
 
 class FakeCollection:
     def __init__(self):
@@ -8,14 +8,14 @@ class FakeCollection:
     def insert_one(self, item):
         self.data.append(item)
         return True
-    
+
     def find(self, query):
         return [m for m in self.data if m["room_id"] == query["room_id"]]
-    
+
 
 def test_create_message():
     msg = create_message("room1", "user1", "hello")
-    
+
     assert msg["room_id"] == "room1"
     assert msg["sender"] == "user1"
     assert msg["message"] == "hello"
