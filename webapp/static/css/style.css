@@ -1,30 +1,51 @@
+/* --- Reset --- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* --- Base --- */
 body {
-    font-family: sans-serif;
-    background: #f9f9f9;
-    color: #333;
+    font-family: 'Segoe UI', sans-serif;
+    background: #faf8f5;
+    color: #2c2c2c;
 }
 
+h1 {
+    margin-bottom: 1.5rem;
+    font-size: 1.6rem;
+    color: #2c2c2c;
+}
+
+p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+p a {
+    color: #2c2c2c;
+    font-weight: 600;
+}
+
+/* --- Nav --- */
 nav {
-    background: #fff;
-    border-bottom: 1px solid #ddd;
+    background: #2c2c2c;
     padding: 0 2rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
     height: 56px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
 
 .nav-logo {
     font-size: 1.2rem;
     font-weight: bold;
     text-decoration: none;
-    color: #333;
+    color: #e8c97e;
+    letter-spacing: 0.05em;
 }
 
 nav ul {
@@ -35,105 +56,278 @@ nav ul {
 
 nav ul a {
     text-decoration: none;
-    color: #555;
+    color: #ccc;
     font-size: 0.9rem;
+    transition: color 0.2s;
 }
 
 nav ul a:hover {
-    color: #000;
+    color: #e8c97e;
 }
 
+.nav-auth {
+    margin-left: auto;
+}
+
+/* --- Main --- */
 main {
     max-width: 900px;
-    margin: 2rem auto;
+    margin: 2.5rem auto;
     padding: 0 1.5rem;
 }
 
+/* --- Flash Messages --- */
 .flash {
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
     border-left: 3px solid #999;
     background: #fff;
     font-size: 0.9rem;
+    border-radius: 2px;
 }
 
-.flash.error { border-color: #c0392b; }
-.flash.success { border-color: #27ae60; }
+.flash.error { border-color: #c0392b; background: #fff5f5; }
+.flash.success { border-color: #27ae60; background: #f5fff8; }
 
-/* Auth forms */
-.auth-container {
-    max-width: 420px;
-    margin: 3rem auto;
-    background: #fff;
-    padding: 2rem;
-    border: 1px solid #ddd;
-}
-
-.auth-container.wide {
-    max-width: 900px;
-}
-
-h1 {
-    margin-bottom: 1.5rem;
-    font-size: 1.6rem;
-}
-
+/* --- Forms & Inputs --- */
 label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 600;
     margin-bottom: 0.3rem;
     margin-top: 1rem;
+    color: #555;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 input, select, textarea {
     width: 100%;
     padding: 0.6rem 0.8rem;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
+    border-radius: 4px;
     font-size: 0.95rem;
-    font-family: sans-serif;
+    font-family: inherit;
+    background: #fdfcfa;
+    transition: border-color 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #e8c97e;
 }
 
 textarea {
     resize: vertical;
 }
 
-button, .btn {
-    display: inline-block;
-    margin-top: 1.5rem;
-    padding: 0.7rem 1.5rem;
-    background: #333;
-    color: #fff;
-    border: none;
-    font-size: 0.9rem;
-    cursor: pointer;
-    text-decoration: none;
-}
-
-button:hover, .btn:hover {
-    background: #555;
-}
-
-/* Signup 3-column grid */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 2rem;
 }
 
-/* Home */
-.home-container {
-    text-align: center;
-    padding: 3rem 0;
+.form-container {
+    max-width: 500px;
+    background: #fff;
+    padding: 2rem;
+    border: 1px solid #e0ddd8;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
 }
 
-.home-links {
+.form-container.centered {
+    margin: 2rem auto;
+}
+
+/* --- Buttons --- */
+button, .btn {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.7rem 1.5rem;
+    background: #2c2c2c;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.1s;
+}
+
+button:hover, .btn:hover {
+    background: #e8c97e;
+    color: #2c2c2c;
+    transform: translateY(-1px);
+}
+
+.btn-outline-dark {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.7rem 1.5rem;
+    background: transparent;
+    color: #2c2c2c;
+    border: 1.5px solid #2c2c2c;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.btn-outline-dark:hover {
+    background: #2c2c2c;
+    color: #fff;
+}
+
+.btn-logout {
+    padding: 0.5rem 1.25rem;
+    background: transparent;
+    color: #c0392b;
+    border: 1.5px solid #c0392b;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background: #c0392b;
+    color: #fff;
+}
+
+.btn-reject {
+    padding: 0.8rem 2rem;
+    background: #fff;
+    color: #c0392b;
+    border: 2px solid #c0392b;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-reject:hover {
+    background: #c0392b;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-join {
+    padding: 0.8rem 2rem;
+    background: #fff;
+    color: #27ae60;
+    border: 2px solid #27ae60;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-join:hover {
+    background: #27ae60;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* --- Auth --- */
+.auth-container {
+    max-width: 420px;
+    margin: 3rem auto;
+    background: #fff;
+    padding: 2rem;
+    border: 1px solid #e0ddd8;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.auth-container.wide {
+    max-width: 900px;
+}
+
+/* --- Landing --- */
+.landing-container {
+    text-align: center;
+    padding: 5rem 0;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.landing-container h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.landing-sub {
+    font-size: 1.1rem;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
+.landing-desc {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.landing-actions {
     display: flex;
     gap: 1rem;
     justify-content: center;
-    margin-top: 1.5rem;
 }
 
-/* Events */
+/* --- Home / Swipe Card --- */
+.swipe-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 0;
+}
+
+.event-swipe-card {
+    background: #fff;
+    border: 1px solid #e0ddd8;
+    border-radius: 12px;
+    padding: 2.5rem;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.event-swipe-card h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+}
+
+.event-desc {
+    color: #666;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.event-meta {
+    font-size: 0.9rem;
+    color: #888;
+    margin: 0.4rem 0;
+}
+
+.swipe-actions {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.no-events {
+    text-align: center;
+    padding: 3rem 0;
+    color: #888;
+}
+
+/* --- Events --- */
 .events-container h1 {
     margin-bottom: 1rem;
 }
@@ -148,8 +342,14 @@ button:hover, .btn:hover {
 
 .event-card {
     background: #fff;
-    border: 1px solid #ddd;
+    border: 1px solid #e0ddd8;
+    border-radius: 6px;
     padding: 1.25rem;
+    transition: box-shadow 0.2s;
+}
+
+.event-card:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
 }
 
 .event-card h3 {
@@ -159,24 +359,95 @@ button:hover, .btn:hover {
 .event-card a {
     display: inline-block;
     margin-top: 0.75rem;
-    color: #333;
+    color: #2c2c2c;
     font-size: 0.9rem;
+    font-weight: 600;
 }
 
-/* Form container */
-.form-container {
-    max-width: 500px;
-    background: #fff;
-    padding: 2rem;
-    border: 1px solid #ddd;
+/* --- Messages --- */
+.messages-container h1 {
+    margin-bottom: 1rem;
 }
 
-p {
+.conversation-list {
+    list-style: none;
     margin-top: 1rem;
-    font-size: 0.9rem;
-    color: #666;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-p a {
+.conversation-card {
+    background: #fff;
+    border: 1px solid #e0ddd8;
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
+    transition: box-shadow 0.2s;
+}
+
+.conversation-card:hover {
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+}
+
+.conversation-card a {
+    text-decoration: none;
+    color: #2c2c2c;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.convo-name {
+    font-weight: 600;
+}
+
+.convo-preview {
+    font-size: 0.85rem;
+    color: #888;
+}
+
+/* --- Profile --- */
+.profile-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0ddd8;
+}
+
+.profile-header h1 {
+    margin-bottom: 0;
+}
+
+.profile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.profile-section {
+    background: #fff;
+    border: 1px solid #e0ddd8;
+    border-radius: 8px;
+    padding: 1.25rem;
+}
+
+.profile-section h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-bottom: 0.75rem;
+}
+
+.profile-section p {
+    margin-top: 0.4rem;
+    font-size: 0.92rem;
     color: #333;
 }
