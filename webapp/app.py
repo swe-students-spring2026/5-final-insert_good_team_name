@@ -17,6 +17,7 @@ from flask_login import (
     current_user,
 )
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 from dotenv import load_dotenv
 from models.user import create_user
@@ -157,6 +158,27 @@ def connect():
         return False
 
     logger.info(f"{current_user.id} connected")
+
+
+@socketIO.on("join_room")
+def handle_join(data):
+    """join a chat room."""
+    room = data["room"]
+    join_room(room)
+
+
+@socketIO.on("send_message")
+def handle_send_message(data):
+    """Handle sending a message via socket"""
+    if not current_user.is_authenticated:
+        return
+    
+    room = data["room"]
+    text = data["message"]
+
+    msg = create_message(room, current_user.id, text)
+    save_message(messages_collection, msg)
+    emit("receive_message", msg, to=room)
 
 
 @app.route("/events")

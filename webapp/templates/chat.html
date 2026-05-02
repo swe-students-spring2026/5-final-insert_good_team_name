@@ -11,9 +11,15 @@
     {% endfor %}
 </div>
 
-<form method="POST">
-    <input type="text" name="message" placeholder="Type message..." required>
-    <button type="submit">Send</button>
-</form>
+<input id="messageInput" type="text" placeholder="Type message..." />
+<button type="submit">Send</button>
 
-{% endblock %}
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+
+<script>
+    const ROOM_ID = "{{ current_user.id }}_{{ otherUsername }}";
+</script>
+
+{% endblock %} 
