@@ -55,10 +55,7 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
-<<<<<<< HEAD
     """Render app landing page for anonymous users."""
-=======
->>>>>>> 33a306e9386eec4cd8d06199c80cd9ce6691b1fd
     if current_user.is_authenticated:
         return render_template("home.html")
     return render_template("landing.html")
@@ -134,15 +131,9 @@ def create_event_route():
     """Create a new event."""
     if request.method == "GET":
         return render_template("create_event.html")
-<<<<<<< HEAD
 
     data = request.form.to_dict()
     data["tags"] = request.form.getlist("tags")
-=======
-    
-    data = request.form.to_dict()
-    data["tags"] = request.form.getlist("tags")  
->>>>>>> 33a306e9386eec4cd8d06199c80cd9ce6691b1fd
 
     error = validate_event(data)
     if error:
