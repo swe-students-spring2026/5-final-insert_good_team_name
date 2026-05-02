@@ -67,10 +67,10 @@ def validate_event(data):
     Checks for:
     - Required fields are filled out
     - Capacity is a number and at least 3
-    - No more than 3 tags
+    - Between 3 and 5 tags
     Returns: error message or None if valid
     """
-    required_fields = ["title", "datetime", "capacity", "description"]
+    required_fields = ["title", "datetime", "capacity", "description", "location"]
 
     for field in required_fields:
         if field not in data or str(data[field]).strip() == "":

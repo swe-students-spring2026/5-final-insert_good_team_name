@@ -1,0 +1,77 @@
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  docker-compose:
+    name: Lint · Docker Compose
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate Compose file
+        run: docker compose config
+
+  black:
+    name: Lint · Black
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install black
+
+      - name: Run Black
+        run: black --check webapp matching-service
+
+  pylint:
+    name: Lint · Pylint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies and Pylint
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r webapp/requirements.txt
+          pip install -r matching-service/requirements.txt
+          pip install pylint
+
+      - name: Run Pylint
+        run: pylint --rcfile=pyproject.toml webapp matching-service
+
+  syntax:
+    name: Lint · Syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Python syntax compile
+        run: |
+          python -m py_compile webapp/app.py
+          python -m py_compile matching-service/app.py

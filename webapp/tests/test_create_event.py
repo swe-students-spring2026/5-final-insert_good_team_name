@@ -8,8 +8,7 @@ def valid_event_data():
     return {
         "title": "Dinner",
         "description": "Fun dinner",
-        "date": "2026-05-01",
-        "time": "18:00",
+        "datetime": "2026-05-01 18:00",
         "capacity": "4",
         "tags": ["food", "casual", "fun"],
         "location": "NYC",
@@ -20,8 +19,7 @@ def test_create_event_success():
     data = {
         "title": "Pizza Night",
         "description": "Come eat pizza",
-        "date": "2026-05-01",
-        "time": "19:00",
+        "datetime": "2026-05-01 19:00",
         "capacity": "6",
         "tags": ["pizza", "casual", "friends"],
         "location": "NYC",
@@ -33,8 +31,7 @@ def test_create_event_success():
 
     assert event["title"] == "Pizza Night"
     assert event["description"] == "Come eat pizza"
-    assert event["date"] == "2026-05-01"
-    assert event["time"] == "19:00"
+    assert event["datetime"] == "2026-05-01 19:00"
     assert event["host_id"] == host_id
     assert event["capacity"] == 6
     assert event["tags"] == ["pizza", "casual", "friends"]
@@ -61,13 +58,13 @@ def test_validate_event_missing_title():
     assert error == "title is required."
 
 
-def test_validate_event_missing_date():
+def test_validate_event_missing_datetime():
     data = valid_event_data()
-    data["date"] = ""
+    data["datetime"] = ""
 
     error = validate_event(data)
 
-    assert error == "date is required."
+    assert error == "datetime is required."
 
 
 def test_validate_event_missing_location():
