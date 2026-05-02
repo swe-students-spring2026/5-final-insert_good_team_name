@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 from models.user import create_user
 from models.event_model import create_event
 from utils.validation import validate_signup, validate_login, validate_event
+from utils.message import create_message, save_message, get_messages
 from db import users_collection, events_collection, messages_collection
 
 
@@ -155,7 +156,7 @@ def connect():
     if not current_user.is_authenticated:
         return False
 
-    logger.info(f"(current_user.id) connected")
+    logger.info(f"{current_user.id} connected")
 
 
 @app.route("/events")
@@ -198,7 +199,69 @@ def create_event_route():
 @login_required
 def messages():
     """Show all message conversations."""
-    return render_template("messages.html", conversations=[])
+
+    user_id = current_user.id
+
+    all_messages = list(
+        messages_collection.find(
+            {
+                "$or": [
+                    {"sender": user_id},
+                    {"room_id": {"$regex": f"^{user_id}_|_{user_id}$"}},
+                ]
+            }
+        )
+    )
+
+    conversations = {}
+
+    for msg in all_messages:
+        room = msg["room_id"]
+
+        # find the oppose user
+        user1, user2 = room.split("_", 1)
+        other = user1 if user2 == user_id else user2
+
+        # just keep the newest message
+        if (
+            room not in conversations
+            or msg["timestamp"] > conversations[room]["timestamp"]
+        ):
+            conversations[room] = {
+                "_id": room,
+                "other_user": other,
+                "last_message": msg["message"],
+                "timestamp": msg["timestamp"],
+            }
+
+    return render_template(
+        "messages.html",
+        conversations=sorted(
+            conversations.values(), key=lambda x: x["timestamp"], reverse=True
+        ),
+    )
+
+
+@app.route("/chat/<username>", methods=["GET", "POST"])
+@login_required
+def chat(username):
+    """Chat page: send + load messages"""
+    room_id = "_".join(sorted([current_user.id, username]))
+
+    # post = send message
+    if request.method == "POST":
+        text = request.form.get("message")
+
+        if text:
+            msg = create_message(room_id, current_user.id, text)
+            save_message(messages_collection, msg)
+
+        return redirect(url_for("chat", username=username))
+
+    # get = load messages
+    messages = get_messages(messages_collection, room_id)
+
+    return render_template("chat.html", messages=messages, otherUsername=username)
 
 
 @app.route("/home")
@@ -257,8 +320,6 @@ def view_event(event_id):
         return "Unauthorized", 403
 
     host = users_collection.find_one({"_id": event["host_id"]})
-
-    return render_template("event.html", event=event, host=host)
 
     return render_template("event.html", event=event, host=host)
 
