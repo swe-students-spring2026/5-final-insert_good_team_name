@@ -58,6 +58,16 @@ def compute_match_score(user, event) -> float:
 
     final_score = 0.3 * event_score + 0.5 * group_score + 0.2 * size_score1
 
+    if event.get("dining", False):
+        dietary_multiplier = dietary_score(
+            user.get("dietary_restrictions", []),
+            event.get("dining_tags", [])
+        )
+    else:
+        dietary_multiplier = 1.0
+
+    final_score *= dietary_multiplier
+
     return final_score
 
 
@@ -120,3 +130,25 @@ def age_score(user_age: int, group_ages: List[int]) -> float:
     std = math.sqrt(variance)
 
     return math.exp(-((user_age - mean) ** 2) / (2 * (std ** 2 + 4)))
+
+def dietary_score(user_restrictions, event_dining_tags) -> float:
+    """
+    Returns a multiplier in [min_penalty, 1.0]
+
+    - 1.0 → fully compatible
+    - <1.0 → missing support
+    """
+
+    if not user_restrictions:
+        return 1.0
+
+    set_u = set(user_restrictions)
+    set_e = set(event_dining_tags or [])
+
+    matches = len(set_u & set_e)
+
+    coverage = matches / len(set_u)
+
+    penalty_cap = 0.5
+
+    return penalty_cap + (1 - penalty_cap) * coverage

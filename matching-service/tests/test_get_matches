@@ -1,19 +1,22 @@
 from app.get_matches import rank_events_for_user, get_best_event_for_user
 
-def make_user(age, interests, loc=(0, 0), ranges=[(3, 10)]):
+def make_user(age, tags, loc=(0, 0), ranges=[(3, 10)], dietary=None):
     return {
         "age": age,
-        "tags": interests,
+        "tags": tags,
         "location": loc,
-        "preferred_group_ranges": ranges
+        "preferred_group_ranges": ranges,
+        "dietary_restrictions": dietary or []
     }
 
-def make_event(interests, members, loc=(0, 0), intended_size=6):
+def make_event(tags, members, loc=(0, 0), intended_size=6, dining_tags=None, dining=False):
     return {
-        "tags": interests,
+        "tags": tags,
         "location": loc,
         "attendees": members,
-        "capacity": intended_size
+        "capacity": intended_size,
+        "dining_tags": dining_tags or [],
+        "dining": dining
     }
 
 def test_rank_sorted():

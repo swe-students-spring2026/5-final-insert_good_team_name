@@ -1,19 +1,22 @@
 from app.event_match import compute_match_score
 
-def make_user(age, interests, loc=(0, 0), ranges=[(3, 10)]):
+def make_user(age, tags, loc=(0, 0), ranges=[(3, 10)], dietary=None):
     return {
         "age": age,
-        "tags": interests,
+        "tags": tags,
         "location": loc,
-        "preferred_group_ranges": ranges
+        "preferred_group_ranges": ranges,
+        "dietary_restrictions": dietary or []
     }
 
-def make_event(interests, members, loc=(0, 0), intended_size=6):
+def make_event(tags, members, loc=(0, 0), intended_size=6, dining_tags=None, dining=False):
     return {
-        "tags": interests,
+        "tags": tags,
         "location": loc,
         "attendees": members,
-        "capacity": intended_size
+        "capacity": intended_size,
+        "dining_tags": dining_tags or [],
+        "dining": dining
     }
 
 def test_perfect_match():
@@ -126,3 +129,47 @@ def test_empty_interests():
     print("Empty interests:", score)
     assert 0.0 <= score <= 1.0
 
+def test_dietary_affects_score():
+    user = make_user(25, ["outdoors"], dietary=["vegan"])
+
+    event_good = make_event(["outdoors"], [make_user(25, ["outdoors"])],
+                            dining_tags=["vegan"], dining=True)
+
+    event_bad = make_event(["outdoors"], [make_user(25, ["outdoors"])],
+                           dining_tags=["pescatarian"], dining=True)
+
+    s1 = compute_match_score(user, event_good)
+    s2 = compute_match_score(user, event_bad)
+
+    print("Dietary good vs bad:", s1, s2)
+    assert s1 > s2
+
+def test_no_dietary_no_penalty():
+    user = make_user(25, ["outdoors"], dietary=[])
+
+    event1 = make_event(["outdoors"], [make_user(25, ["outdoors"])],
+                        dining_tags=["vegan"], dining=True)
+
+    event2 = make_event(["outdoors"], [make_user(25, ["outdoors"])],
+                        dining_tags=["pescatarian"], dining=True)
+
+    s1 = compute_match_score(user, event1)
+    s2 = compute_match_score(user, event2)
+
+    print("No dietary difference:", s1, s2)
+    assert abs(s1 - s2) < 1e-6
+
+def test_empty_dining_tags_penalty():
+    user = make_user(25, ["outdoors"], dietary=["vegan"])
+
+    event_with = make_event(["outdoors"], [make_user(25, ["outdoors"])],
+                            dining_tags=["vegan"], dining=True)
+
+    event_empty = make_event(["outdoors"], [make_user(25, ["outdoors"])],
+                             dining_tags=[], dining=True)
+
+    s1 = compute_match_score(user, event_with)
+    s2 = compute_match_score(user, event_empty)
+
+    print("Dining tags vs empty:", s1, s2)
+    assert s1 > s2
