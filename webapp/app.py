@@ -4,10 +4,9 @@ import os
 import random
 import logging
 from datetime import datetime
-import random
-import logging
-from datetime import datetime
 
+
+from bson import ObjectId
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import (
     LoginManager,
@@ -18,25 +17,12 @@ from flask_login import (
     current_user,
 )
 from flask_socketio import SocketIO, emit, join_room, leave_room
-from werkzeug.middleware.proxy_fix import ProxyFix
-from flask_login import (
-    LoginManager,
-    UserMixin,
-    login_user,
-    logout_user,
-    login_required,
-    current_user,
-)
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from werkzeug.middleware.proxy_fix import ProxyFix
+
 from dotenv import load_dotenv
 from models.user import create_user
 from models.event_model import create_event
 from utils.validation import validate_signup, validate_login, validate_event
-from webapp.db import users_collection, events_collection
-from webapp.db import users_collection, events_collection
-from bson import ObjectId
-
+from db import users_collection, events_collection, messages_collection
 
 
 # This is a placeholder function for the matching algorithm. It currently just returns the first event.
@@ -45,7 +31,6 @@ def get_best_event_match(user, events):
         return None
 
     return events[0]
-
 
 
 load_dotenv()
@@ -64,40 +49,11 @@ class Config:
     CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*")
 
 
-
-# loggling
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
-
-
-class Config:
-    SECRET_KEY = os.environ.get("SECRET_KEY", "dev")
-    DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
-    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*")
-
-
 app = Flask(__name__)
-app.config.from_object(Config)
 app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
-
-
-# Handle Reverse PRoxy
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
-
-
-# Set up the Socket
-socketIO = SocketIO(
-    app,
-    cors_allowed_origins=app.config["CORS_ORIGINS"],
-    logger=True,
-    engineio_logger=True,
-)
-
 
 
 # Handle Reverse PRoxy
@@ -141,15 +97,12 @@ def login():
     if request.method == "GET":
         return render_template("login.html")
 
-
     data = request.form
-
 
     error, user_data = validate_login(data, users_collection)
 
     if error:
         return render_template("login.html", error=error)
-
 
     user = User(user_data)
     login_user(user)
@@ -160,7 +113,6 @@ def login():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    """Render signup page.
     """Render signup page.
     Create a new user and log them in."""
     if request.method == "GET":
@@ -206,16 +158,6 @@ def connect():
     logger.info(f"(current_user.id) connected")
 
 
-# Make a connection
-@socketIO.event
-def connect():
-    """handles conenction"""
-    if not current_user.is_authenticated:
-        return False
-
-    logger.info(f"(current_user.id) connected")
-
-
 @app.route("/events")
 @login_required
 def events():
@@ -230,7 +172,6 @@ def create_event_route():
     if request.method == "GET":
         return render_template("create_event.html")
 
-
     data = request.form.to_dict()
     data["tags"] = request.form.getlist("tags")
     data["tags"] = request.form.getlist("tags")
@@ -238,7 +179,6 @@ def create_event_route():
     error = validate_event(data)
     if error:
         return render_template("create_event.html", error=error)
-
 
     event = create_event(data, current_user.id)
 
@@ -254,13 +194,11 @@ def create_event_route():
     return redirect(url_for("events"))
 
 
-
 @app.route("/messages")
 @login_required
 def messages():
     """Show all message conversations."""
     return render_template("messages.html", conversations=[])
-
 
 
 @app.route("/home")
@@ -292,15 +230,12 @@ def home():
     )
 
     # TODO: create a function to calculate best match based on matching service algorithm
-    # TODO: create a function to calculate best match based on matching service algorithm
     best_event = get_best_event_match(user, events)
 
     return render_template("home.html", event=best_event)
 
 
-
 from bson.objectid import ObjectId
-
 
 
 @app.route("/events/<event_id>")
@@ -340,13 +275,11 @@ def reject_event(event_id):
     return redirect(url_for("home"))
 
 
-
 @app.route("/profile")
 @login_required
 def profile():
     """Show user profile."""
     return render_template("profile.html")
-
 
 
 if __name__ == "__main__":

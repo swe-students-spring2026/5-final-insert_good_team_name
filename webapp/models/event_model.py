@@ -8,9 +8,7 @@ def create_event(data, host_id, image_url=None):
         # REQUIRED fields
         "description": data["description"],
         "location": data["location"],
-
         "datetime": data["datetime"],
-
         "host_id": host_id,
         "capacity": int(data["capacity"]),
         # Defaults
@@ -36,4 +34,3 @@ def create_event(data, host_id, image_url=None):
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
     }
-
