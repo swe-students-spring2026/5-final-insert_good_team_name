@@ -9,8 +9,7 @@ def create_event(data, host_id, image_url=None):
         "description": data["description"],
         "location": data["location"],
 
-        "date": data["date"],
-        "time": data["time"],
+        "datetime": data["datetime"],
 
         "host_id": host_id,
         "capacity": int(data["capacity"]),
