@@ -399,7 +399,10 @@ def apply_event(event_id):
     room_id = "_".join(sorted([user_id, host_id]))
 
     # send automated message
-    msg_text = f"Hi! I would like to join your event: '{event['title']}'. View event: /events/{event_id}"
+    msg_text = (
+        f"Hi! I would like to join your event: '{event['title']}'."
+        f" View event: /events/{event_id}"
+    )
     msg = create_message(room_id, user_id, msg_text)
 
     save_message(messages_collection, msg)
