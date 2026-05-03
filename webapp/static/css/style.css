@@ -1,16 +1,35 @@
+/* --- Reset --- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+/* --- Base --- */
 body {
     font-family: 'Segoe UI', sans-serif;
     background: #faf8f5;
     color: #2c2c2c;
 }
 
-/* NAV */
+h1 {
+    margin-bottom: 1.5rem;
+    font-size: 1.6rem;
+    color: #2c2c2c;
+}
+
+p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+p a {
+    color: #2c2c2c;
+    font-weight: 600;
+}
+
+/* --- Nav --- */
 nav {
     background: #2c2c2c;
     padding: 0 2rem;
@@ -46,14 +65,18 @@ nav ul a:hover {
     color: #e8c97e;
 }
 
-/* MAIN */
+.nav-auth {
+    margin-left: auto;
+}
+
+/* --- Main --- */
 main {
     max-width: 900px;
     margin: 2.5rem auto;
     padding: 0 1.5rem;
 }
 
-/* FLASH */
+/* --- Flash Messages --- */
 .flash {
     padding: 0.75rem 1rem;
     margin-bottom: 1rem;
@@ -66,28 +89,7 @@ main {
 .flash.error { border-color: #c0392b; background: #fff5f5; }
 .flash.success { border-color: #27ae60; background: #f5fff8; }
 
-/* AUTH */
-.auth-container {
-    max-width: 420px;
-    margin: 3rem auto;
-    background: #fff;
-    padding: 2rem;
-    border: 1px solid #e0ddd8;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-
-.auth-container.wide {
-    max-width: 900px;
-}
-
-/* TYPOGRAPHY */
-h1 {
-    margin-bottom: 1.5rem;
-    font-size: 1.6rem;
-    color: #2c2c2c;
-}
-
+/* --- Forms & Inputs --- */
 label {
     display: block;
     font-size: 0.82rem;
@@ -119,7 +121,26 @@ textarea {
     resize: vertical;
 }
 
-/* BUTTONS */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 2rem;
+}
+
+.form-container {
+    max-width: 500px;
+    background: #fff;
+    padding: 2rem;
+    border: 1px solid #e0ddd8;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.form-container.centered {
+    margin: 2rem auto;
+}
+
+/* --- Buttons --- */
 button, .btn {
     display: inline-block;
     margin-top: 1.5rem;
@@ -141,37 +162,172 @@ button:hover, .btn:hover {
     transform: translateY(-1px);
 }
 
-/* FORM GRID (signup) */
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 2rem;
+.btn-outline-dark {
+    display: inline-block;
+    margin-top: 1.5rem;
+    padding: 0.7rem 1.5rem;
+    background: transparent;
+    color: #2c2c2c;
+    border: 1.5px solid #2c2c2c;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: all 0.2s;
 }
 
-/* HOME */
-.home-container {
+.btn-outline-dark:hover {
+    background: #2c2c2c;
+    color: #fff;
+}
+
+.btn-logout {
+    padding: 0.5rem 1.25rem;
+    background: transparent;
+    color: #c0392b;
+    border: 1.5px solid #c0392b;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-logout:hover {
+    background: #c0392b;
+    color: #fff;
+}
+
+.btn-reject {
+    padding: 0.8rem 2rem;
+    background: #fff;
+    color: #c0392b;
+    border: 2px solid #c0392b;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-reject:hover {
+    background: #c0392b;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-join {
+    padding: 0.8rem 2rem;
+    background: #fff;
+    color: #27ae60;
+    border: 2px solid #27ae60;
+    border-radius: 50px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-join:hover {
+    background: #27ae60;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+/* --- Auth --- */
+.auth-container {
+    max-width: 420px;
+    margin: 3rem auto;
+    background: #fff;
+    padding: 2rem;
+    border: 1px solid #e0ddd8;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.auth-container.wide {
+    max-width: 900px;
+}
+
+/* --- Landing --- */
+.landing-container {
     text-align: center;
-    padding: 4rem 0;
+    padding: 5rem 0;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.home-container h1 {
-    font-size: 2rem;
+.landing-container h1 {
+    font-size: 2.5rem;
     margin-bottom: 0.75rem;
 }
 
-.home-container p {
-    color: #777;
-    font-size: 1rem;
+.landing-sub {
+    font-size: 1.1rem;
+    color: #888;
+    margin-bottom: 1rem;
 }
 
-.home-links {
+.landing-desc {
+    font-size: 0.95rem;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.landing-actions {
     display: flex;
     gap: 1rem;
     justify-content: center;
+}
+
+/* --- Home / Swipe Card --- */
+.swipe-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 0;
+}
+
+.event-swipe-card {
+    background: #fff;
+    border: 1px solid #e0ddd8;
+    border-radius: 12px;
+    padding: 2.5rem;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.event-swipe-card h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1rem;
+}
+
+.event-desc {
+    color: #666;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.event-meta {
+    font-size: 0.9rem;
+    color: #888;
+    margin: 0.4rem 0;
+}
+
+.swipe-actions {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
     margin-top: 2rem;
 }
 
-/* EVENTS */
+.no-events {
+    text-align: center;
+    padding: 3rem 0;
+    color: #888;
+}
+
+/* --- Events --- */
 .events-container h1 {
     margin-bottom: 1rem;
 }
@@ -208,21 +364,7 @@ button:hover, .btn:hover {
     font-weight: 600;
 }
 
-/* FORM CONTAINER */
-.form-container {
-    max-width: 500px;
-    background: #fff;
-    padding: 2rem;
-    border: 1px solid #e0ddd8;
-    border-radius: 8px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-
-.form-container.centered {
-    margin: 2rem auto;
-}
-
-/* MESSAGES */
+/* --- Messages --- */
 .messages-container h1 {
     margin-bottom: 1rem;
 }
@@ -264,13 +406,48 @@ button:hover, .btn:hover {
     color: #888;
 }
 
-p {
-    margin-top: 1rem;
-    font-size: 0.9rem;
-    color: #666;
+/* --- Profile --- */
+.profile-container {
+    max-width: 700px;
+    margin: 0 auto;
 }
 
-p a {
-    color: #2c2c2c;
-    font-weight: 600;
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e0ddd8;
+}
+
+.profile-header h1 {
+    margin-bottom: 0;
+}
+
+.profile-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.profile-section {
+    background: #fff;
+    border: 1px solid #e0ddd8;
+    border-radius: 8px;
+    padding: 1.25rem;
+}
+
+.profile-section h3 {
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #888;
+    margin-bottom: 0.75rem;
+}
+
+.profile-section p {
+    margin-top: 0.4rem;
+    font-size: 0.92rem;
+    color: #333;
 }
