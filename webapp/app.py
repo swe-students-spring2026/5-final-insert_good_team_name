@@ -440,7 +440,7 @@ def apply_event(event_id):
 
     # send automated message
     msg_text = (
-        f"Hi! I would like to join your event: '{event['title']}'."
+        f"Hi! I would like to join your event: '{event.get('title', 'Untitled')}'."
         f" View event: /events/{event_id}"
     )
     msg = create_message(room_id, user_id, msg_text)
@@ -582,3 +582,4 @@ def edit_profile():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=True)
+
