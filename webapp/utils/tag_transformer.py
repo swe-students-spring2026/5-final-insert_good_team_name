@@ -1,6 +1,4 @@
-"""Transforms user preferences and event types into algorithm tags for better matching."""
-
-"""
+"""Transforms preferences and event types into algorithm tags
 List of tags:
 outdoors
 fitness
