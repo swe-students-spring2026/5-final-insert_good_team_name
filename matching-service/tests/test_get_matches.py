@@ -81,3 +81,39 @@ def test_single_event():
     assert best_event == event
     assert ranked[0][0] == event
     assert abs(ranked[0][1] - best_score) < 1e-6
+
+
+def test_excludes_all_categories():
+    user = make_user(25, ["outdoors"])
+    user["created_events"] = ["e1"]
+    user["joined_events"] = ["e2"]
+    user["rejected_events"] = ["e3"]
+    user["pending_events"] = ["e4"]
+
+    events = []
+    for i in range(1, 5):
+        e = make_event(["outdoors"], ["u1"])
+        e["_id"] = f"e{i}"
+        events.append(e)
+
+    best_event, score = get_best_event(user, events, users_collection)
+
+    print("All excluded:", best_event, score)
+    assert best_event is None
+    assert score == 0.0
+
+
+def test_mixed_excluded_and_valid():
+    user = make_user(25, ["outdoors"])
+    user["rejected_events"] = ["e1"]
+
+    e1 = make_event(["outdoors"], ["u1"])
+    e1["_id"] = "e1"  # should be excluded
+
+    e2 = make_event(["outdoors"], ["u1"])
+    e2["_id"] = "e2"  # valid
+
+    best_event, _ = get_best_event(user, [e1, e2], users_collection)
+
+    print("Mixed filter:", best_event["_id"])
+    assert best_event["_id"] == "e2"

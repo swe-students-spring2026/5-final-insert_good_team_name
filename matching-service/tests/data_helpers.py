@@ -1,13 +1,18 @@
 """Helpers for tests to use"""
 
 
-def make_user(age, algorithm_tags, loc=(0, 0), ranges=None, dietary=None):
+# pylint disabled here since this is just a helper for tests
+# pylint: disable=too-many-arguments
+def make_user(age, algorithm_tags, loc=(0, 0), ranges=None, dietary=None, drinks=True):
     return {
         "age": age,
         "algorithm_tags": algorithm_tags,
         "location": loc,
         "preferred_group_ranges": ranges or [(3, 10)],
         "dietary_restrictions": dietary or [],
+        "drinking_smoking": {
+            "drinks": drinks,
+        },
     }
 
 

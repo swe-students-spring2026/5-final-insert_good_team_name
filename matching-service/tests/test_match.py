@@ -186,3 +186,47 @@ def test_empty_dining_tags_penalty():
 
     print("Dining tags vs empty:", s1, s2)
     assert s1 > s2
+
+
+def test_underage_drinking_tag_blocked():
+    user = make_user(18, ["social"], drinks=False)
+
+    member = make_user(25, ["social", "drinks"], drinks=True)
+    event = make_event(["social", "drinks"], [member])
+
+    score = compute_match_score(user, event, fake_user_lookup)
+
+    print("Underage drinking tag:", score)
+
+    assert score == 0.0
+
+
+def test_non_drinker_penalty():
+    user_drinks = make_user(25, ["social"], drinks=True)
+    user_no_drink = make_user(25, ["social"], drinks=False)
+
+    member = make_user(25, ["social", "drinks"], drinks=True)
+    event = make_event(["social", "drinks"], [member])
+
+    score_drinks = compute_match_score(user_drinks, event, fake_user_lookup)
+    score_no_drink = compute_match_score(user_no_drink, event, fake_user_lookup)
+
+    print("Drinker vs non-drinker:", score_drinks, score_no_drink)
+
+    assert score_drinks > score_no_drink
+    assert score_no_drink > 0.0
+
+
+def test_no_drinking_tag_no_penalty():
+    user1 = make_user(25, ["social"], drinks=True)
+    user2 = make_user(25, ["social"], drinks=False)
+
+    member = make_user(25, ["social"], drinks=True)
+    event = make_event(["social"], [member])  # no "drinking" tag
+
+    s1 = compute_match_score(user1, event, fake_user_lookup)
+    s2 = compute_match_score(user2, event, fake_user_lookup)
+
+    print("No drinking tag:", s1, s2)
+
+    assert abs(s1 - s2) < 1e-6

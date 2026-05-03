@@ -30,16 +30,13 @@ def get_best_event(user, event_docs, users_collection):
 
     # Categories of already interacted with events
     excluded_ids = set(
-        str(eid)
-        for eid in (
-            user.get("created_events", [])
-            + user.get("joined_events", [])
-            + user.get("rejected_events", [])
-            + user.get("pending_events", [])
-        )
+        user.get("created_events", [])
+        + user.get("joined_events", [])
+        + user.get("rejected_events", [])
+        + user.get("pending_events", [])
     )
 
-    event_docs = [e for e in event_docs if str(e.get("_id")) not in excluded_ids]
+    event_docs = [e for e in event_docs if e.get("_id") not in excluded_ids]
 
     if not event_docs:
         return None, 0.0
