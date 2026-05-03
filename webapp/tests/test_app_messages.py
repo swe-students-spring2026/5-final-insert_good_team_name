@@ -109,7 +109,7 @@ def test_accept_user(client, monkeypatch):
     monkeypatch.setattr(app, "messages_collection", FakeCollection([]))
 
     with client.session_transaction() as sess:
-        sess["_user_id"] = host_id  # host
+        sess["_user_id"] = host_id
 
     response = client.post(f"/events/{event_id}/accept/{user_id}")
 
@@ -194,7 +194,6 @@ def test_send_message(monkeypatch):
 
     monkeypatch.setattr(app, "messages_collection", fake_collection)
 
-    # 👇 mock create_message（关键）
     monkeypatch.setattr(
         app,
         "create_message",
@@ -202,7 +201,7 @@ def test_send_message(monkeypatch):
             "room_id": room,
             "sender": sender,
             "message": message,
-            "timestamp": 0,  # 用 int 代替 datetime
+            "timestamp": 0,
         },
     )
 
