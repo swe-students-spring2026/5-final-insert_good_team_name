@@ -172,7 +172,7 @@ def handle_send_message(data):
     """Handle sending a message via socket"""
     if not current_user.is_authenticated:
         return
-    
+
     room = data["room"]
     text = data["message"]
 
@@ -351,7 +351,6 @@ def view_event(event_id):
 def reject_event(event_id):
     users_collection.update_one(
         {"_id": ObjectId(current_user.id)},
-        {"$addToSet": {"rejected_events": ObjectId(event_id)}},
         {"$addToSet": {"rejected_events": ObjectId(event_id)}},
     )
 
