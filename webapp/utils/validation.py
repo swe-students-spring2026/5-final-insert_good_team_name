@@ -92,7 +92,7 @@ def validate_event(data):
     if not isinstance(tags, list):
         return "Tags must be a list."
 
-    if len(tags) < 3 or len(tags) > 5:
+    if len(tags) > 5:
         return "You must select between 3 and 5 tags."
 
     return None

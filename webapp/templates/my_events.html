@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}My Events — DinnerMeet{% endblock %}
+
+{% block content %}
+<div class="my-events-container">
+    <h1>My Events</h1>
+
+    <section>
+        <h2>Hosting</h2>
+        {% if hosted %}
+            <ul class="event-list">
+            {% for event in hosted %}
+            <li class="event-card">
+                <div class="view-mode">
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-meta">{{ event.datetime }} · {{ event.location }}</p>
+                    <p>{{ event.description }}</p>
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.75rem;">
+                        <a href="/events/{{ event._id }}" class="btn" style="margin-top: 0; display: inline-block; color: #fff;">View</a>
+                        <button type="button" class="btn" style="margin-top: 0;" onclick="toggleEventEdit('{{ event._id }}')">Edit</button>
+                    </div>
+                </div>
+
+                <div class="edit-mode" id="edit-{{ event._id }}" style="display:none;">
+                    <form method="POST" action="/events/{{ event._id }}/edit">
+                        <label>Title:</label>
+                        <input type="text" name="title" value="{{ event.title }}" required />
+                        <label>Date & Time:</label>
+                        <input type="datetime-local" name="datetime" value="{{ event.datetime }}" required />
+                        <label>Capacity:</label>
+                        <input type="number" name="capacity" value="{{ event.capacity }}" min="2" required />
+                        <label>Location:</label>
+                        <input type="text" name="location" value="{{ event.location }}" required />
+                        <label>Description:</label>
+                        <input type="text" name="description" value="{{ event.description }}" />
+                        <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+                            <button type="submit" class="btn" style="margin-top: 0;">Save</button>
+                            <button type="button" class="btn-outline-dark" style="margin-top: 0;" onclick="toggleEventEdit('{{ event._id }}')">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>You are not hosting any events. <a href="/events/create">Create one!</a></p>
+        {% endif %}
+    </section>
+
+    <section style="margin-top: 2rem;">
+        <h2>Attending</h2>
+        {% if attending %}
+            <ul class="event-list">
+            {% for event in attending %}
+                <li class="event-card">
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-meta">{{ event.datetime }} · {{ event.location }}</p>
+                    <p>{{ event.description }}</p>
+                    <a href="/events/{{ event._id }}" class="btn" style="margin-top: 0; display: inline-block; color: #fff;">View</a>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>You are not attending any events yet.</p>
+        {% endif %}
+    </section>
+
+    <section style="margin-top: 2rem;">
+        <h2>Pending</h2>
+        {% if pending %}
+            <ul class="event-list">
+            {% for event in pending %}
+                <li class="event-card">
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-meta">{{ event.datetime }} · {{ event.location }}</p>
+                    <p class="event-meta" style="color: #e8c97e;">Awaiting approval</p>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>No pending requests.</p>
+        {% endif %}
+    </section>
+</div>
+<script>
+    function toggleEventEdit(id) {
+        const editEl = document.getElementById('edit-' + id);
+        const viewEl = editEl.previousElementSibling;
+        editEl.style.display = editEl.style.display === 'none' ? 'block' : 'none';
+        viewEl.style.display = viewEl.style.display === 'none' ? 'block' : 'none';
+    }
+</script>
+{% endblock %}

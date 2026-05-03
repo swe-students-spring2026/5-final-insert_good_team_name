@@ -451,3 +451,9 @@ button:hover, .btn:hover {
     font-size: 0.92rem;
     color: #333;
 }
+
+/* --- Required Fields --- */
+label.required::after {
+    content: " *";
+    color: #c0392b;
+}

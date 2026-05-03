@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ event.title }} — DinnerMeet{% endblock %}
+
+{% block content %}
+<div class="form-container centered">
+    <h1>{{ event.title }}</h1>
+    <p class="event-meta">{{ event.datetime }} · {{ event.get('location', '') }}</p>
+    <p style="margin-top: 1rem;">{{ event.get('description', '') }}</p>
+    <p class="event-meta" style="margin-top: 0.5rem;">
+        <strong>Capacity:</strong> {{ event.capacity }} guests
+    </p>
+    {% if host %}
+    <p class="event-meta">
+        <strong>Host:</strong> {{ host.get('first_name', '') }} {{ host.get('last_name', '')[:1] }}.
+    </p>
+    {% endif %}
+
+    {% if event.dining %}
+    <p class="event-meta"><strong>Dining Event</strong></p>
+    {% endif %}
+
+    {% if event.tags %}
+    <p class="event-meta"><strong>Tags:</strong> {{ event.tags | join(', ') }}</p>
+    {% endif %}
+
+    {% if is_host %}
+        <p class="event-meta" style="color: #e8c97e; margin-top: 1rem;">You are hosting this event.</p>
+
+        <div style="margin-top: 2rem;">
+            <h3>Join Requests</h3>
+            {% if requesters %}
+                <ul class="event-list">
+                {% for requester in requesters %}
+                    <li class="event-card" style="display: flex; justify-content: space-between; align-items: center;">
+                        <p style="margin-top: 0;">
+                            {{ requester.get('first_name', '') }} {{ requester.get('last_name', '')[:1] }}.
+                        </p>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <form method="POST" action="/events/{{ event._id }}/accept/{{ requester._id }}">
+                                <button type="submit" class="btn-join" style="margin-top: 0;">Accept</button>
+                            </form>
+                            <form method="POST" action="/events/{{ event._id }}/reject_user/{{ requester._id }}">
+                                <button type="submit" class="btn-reject" style="margin-top: 0;">Reject</button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No pending join requests.</p>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 2rem;">
+            <h3>Attendees</h3>
+            {% if event.attendees and event.attendees | length > 1 %}
+                <ul class="event-list">
+                {% for attendee_id in event.attendees %}
+                    {% if str(attendee_id) != current_user.id %}
+                        <li class="event-card">
+                            <p style="margin-top: 0;">{{ str(attendee_id) }}</p>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                </ul>
+            {% else %}
+                <p>No attendees yet.</p>
+            {% endif %}
+        </div>
+
+    {% else %}
+        {% if event._id in current_user.data.get('pending_events', []) %}
+            <p class="event-meta" style="color: #e8c97e; margin-top: 1.5rem;">
+                Your request to join is pending approval.
+            </p>
+        {% elif event._id in current_user.data.get('joined_events', []) %}
+            <p class="event-meta" style="color: #27ae60; margin-top: 1.5rem;">
+                You are attending this event!
+            </p>
+        {% else %}
+            <form method="POST" action="/events/{{ event._id }}/apply" style="margin-top: 1.5rem;">
+                <button type="submit" class="btn-join" style="margin-top: 0;">Request to Join</button>
+            </form>
+        {% endif %}
+    {% endif %}
+
+    <div style="margin-top: 2rem;">
+        <a href="/my-events" class="btn-outline-dark" style="display: inline-block;">Back to My Events</a>
+    </div>
+</div>
+{% endblock %}

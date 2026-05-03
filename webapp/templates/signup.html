@@ -12,57 +12,57 @@
     <form method="POST" action="/signup">
         <div class="form-grid">
             <div class="form-col">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required />
+                <label for="email" class="required">Email:</label>
+                <input type="email" id="email" name="email" value="{{ data.get('email', '') if data else '' }}" required />
 
-                <label for="verify_email">Verify Email:</label>
-                <input type="email" id="verify_email" name="confirm_email" required />
+                <label for="verify_email" class="required">Verify Email:</label>
+                <input type="email" id="verify_email" name="confirm_email" value="{{ data.get('confirm_email', '') if data else '' }}" required />
 
-                <label for="password">Password:</label>
+                <label for="password" class="required">Password:</label>
                 <input type="password" id="password" name="password" required />
 
-                <label for="verify_password">Verify Password:</label>
+                <label for="verify_password" class="required">Verify Password:</label>
                 <input type="password" id="verify_password" name="confirm_password" required />
 
-                <label for="first_name">First Name:</label>
-                <input type="text" id="first_name" name="first_name" required />
+                <label for="first_name" class="required">First Name:</label>
+                <input type="text" id="first_name" name="first_name" value="{{ data.get('first_name', '') if data else '' }}" required />
 
-                <label for="last_name">Last Name: <small>(We will only share initial)</small></label>
-                <input type="text" id="last_name" name="last_name" required />
+                <label for="last_name" class="required">Last Name: <small>(We will only share initial)</small></label>
+                <input type="text" id="last_name" name="last_name" value="{{ data.get('last_name', '') if data else '' }}" required />
             </div>
 
             <div class="form-col">
-                <label for="age">Age:</label>
-                <input type="number" id="age" name="age" min="18" />
+                <label for="age" class="required">Age:</label>
+                <input type="number" id="age" name="age" min="18" value="{{ data.get('age', '') if data else '' }}" />
 
-                <label for="neighborhood">Neighborhood in NYC:</label>
-                <input type="text" id="neighborhood" name="neighborhood" />
+                <label for="neighborhood" class="required">Neighborhood in NYC:</label>
+                <input type="text" id="neighborhood" name="neighborhood" value="{{ data.get('neighborhood', '') if data else '' }}" />
 
                 <label for="pronouns">Pronouns:</label>
                 <select id="pronouns" name="pronouns">
                     <option value="">Select...</option>
-                    <option value="he/him">He/Him</option>
-                    <option value="she/her">She/Her</option>
-                    <option value="they/them">They/Them</option>
-                    <option value="other">Other</option>
+                    <option value="he/him" {{ 'selected' if data and data.get('pronouns') == 'he/him' }}>He/Him</option>
+                    <option value="she/her" {{ 'selected' if data and data.get('pronouns') == 'she/her' }}>She/Her</option>
+                    <option value="they/them" {{ 'selected' if data and data.get('pronouns') == 'they/them' }}>They/Them</option>
+                    <option value="other" {{ 'selected' if data and data.get('pronouns') == 'other' }}>Other</option>
                 </select>
 
                 <label for="drinking_smoking">Drinking/Smoking:</label>
-                <input type="text" id="drinking_smoking" name="drinking_smoking" placeholder="e.g. Social drinker, non-smoker" />
+                <input type="text" id="drinking_smoking" name="drinking_smoking" placeholder="e.g. Social drinker, non-smoker" value="{{ data.get('drinking_smoking', '') if data else '' }}" />
 
                 <label for="job">Job/Student:</label>
-                <input type="text" id="job" name="job" />
+                <input type="text" id="job" name="job" value="{{ data.get('job', '') if data else '' }}" />
 
                 <label for="dietary">Dietary Restrictions:</label>
-                <input type="text" id="dietary" name="dietary" />
+                <input type="text" id="dietary" name="dietary" value="{{ data.get('dietary', '') if data else '' }}" />
             </div>
 
             <div class="form-col">
                 <label for="hobbies">Hobbies:</label>
-                <textarea id="hobbies" name="hobbies" rows="5"></textarea>
+                <textarea id="hobbies" name="hobbies" rows="5">{{ data.get('hobbies', '') if data else '' }}</textarea>
 
                 <label for="interests">Interests:</label>
-                <textarea id="interests" name="interests" rows="5"></textarea>
+                <textarea id="interests" name="interests" rows="5">{{ data.get('interests', '') if data else '' }}</textarea>
             </div>
         </div>
 

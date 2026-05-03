@@ -10,11 +10,11 @@
     {% endif %}
 
     <form method="POST" action="/events/create">
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" required />
+        <label for="title" class="required">Title:</label>
+        <input type="text" id="title" name="title" value="{{ data.get('title', '') if data else '' }}" required />
 
-        <label for="datetime">Date & Time:</label>
-        <input type="datetime-local" id="datetime" name="datetime" required />
+        <label for="datetime" class="required">Date & Time:</label>
+        <input type="datetime-local" id="datetime" name="datetime" value="{{ data.get('datetime', '') if data else '' }}" required />
         <p id="datetime-display" style="font-size: 0.9rem; color: #555; margin-top: 0.4rem;"></p>
 
         <script>
@@ -39,16 +39,24 @@
                     });
                 }
             });
+
+            if (input.value) {
+                const date = new Date(input.value);
+                display.textContent = date.toLocaleString("en-US", {
+                    month: "long", day: "numeric", year: "numeric",
+                    hour: "numeric", minute: "2-digit",
+                });
+            }
         </script>
 
-        <label for="capacity">Hosting Capacity:</label>
-        <input type="number" id="capacity" name="capacity" min="2" placeholder="Max guests (min 2)" required />
+        <label for="capacity" class="required">Hosting Capacity:</label>
+        <input type="number" id="capacity" name="capacity" min="2" placeholder="Max guests (min 2)" value="{{ data.get('capacity', '') if data else '' }}" required />
+
+        <label for="location" class="required">Location:</label>
+        <input type="text" id="location" name="location" placeholder="e.g. 123 Main St, Brooklyn" value="{{ data.get('location', '') if data else '' }}" required />
 
         <label for="description">Short Description:</label>
-        <input type="text" id="description" name="description" />
-
-        <label for="location">Location:</label>
-        <input type="text" id="location" name="location" placeholder="e.g. 123 Main St, Brooklyn" required />
+        <input type="text" id="description" name="description" value="{{ data.get('description', '') if data else '' }}" />
 
         <button type="submit">Create Event</button>
     </form>
