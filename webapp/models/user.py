@@ -1,8 +1,10 @@
 from datetime import datetime
 from werkzeug.security import generate_password_hash
+from utils.tag_transformer import transform_preferences_to_tags
 
 
 def create_user(data):
+    interests = data.get("interests", [])
     return {
         "email": data["email"],
         "password_hash": generate_password_hash(data["password"]),
@@ -17,7 +19,8 @@ def create_user(data):
         },
         "dietary_restrictions": data.get("dietary_restrictions", []),
         "hobbies": data.get("hobbies", []),
-        "interests": data.get("interests", []),
+        "interests": interests,
+        "algorithm_tags": transform_preferences_to_tags(interests),
         "created_events": [],
         "joined_events": [],
         "rejected_events": [],
