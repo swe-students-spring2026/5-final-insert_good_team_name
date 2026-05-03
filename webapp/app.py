@@ -19,7 +19,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from dotenv import load_dotenv
 from models.user import create_user
-from models.event_model import create_event
+from models.event_model import create_event, update_event
 from utils.validation import validate_signup, validate_login, validate_event
 from utils.message import create_message, save_message, get_messages
 from db import users_collection, events_collection, messages_collection
@@ -219,6 +219,46 @@ def create_event_route():
 
     flash("Event created successfully.", "success")
     return redirect(url_for("events_page"))
+
+
+@app.route("/events/<event_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_event(event_id):
+    """Edit an event (host only)."""
+
+    event = events_collection.find_one({"_id": ObjectId(event_id)})
+
+    if not event:
+        return "Event not found", 404
+
+    # Only host can edit
+    if str(event["host_id"]) != current_user.id:
+        return "Unauthorized", 403
+
+    if request.method == "GET":
+        return render_template("edit_event.html", event=event)
+
+    data = request.form.to_dict()
+
+    # multi-select fields
+    data["tags"] = request.form.getlist("tags")
+    data["dining_tags"] = request.form.getlist("dining_tags")
+
+    # Validate (same as create, since title is hidden in form)
+    error = validate_event(data)
+    if error:
+        return render_template("edit_event.html", event=event, error=error)
+
+    # Update event with new data while keeping unchanged fields intact
+    updated_event = update_event(data, event)
+
+    events_collection.update_one(
+        {"_id": ObjectId(event_id)},
+        {"$set": updated_event},
+    )
+
+    flash("Event updated successfully.", "success")
+    return redirect(url_for("view_event", event_id=event_id))
 
 
 @app.route("/messages")

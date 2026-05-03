@@ -31,3 +31,24 @@ def create_event(data, host_id, image_url=None):
         "created_at": datetime.utcnow(),
         "updated_at": datetime.utcnow(),
     }
+
+
+def update_event(data, existing_event):
+    selected_tags = data.get("tags", [])
+
+    # Match create_event logic exactly
+    is_dining = bool(data.get("dining", False))
+
+    return {
+        "description": data["description"],
+        "location": data["location"],
+        "datetime": data["datetime"],
+        "capacity": int(data["capacity"]),
+        "dining": is_dining,
+        # No dining tags if not dining
+        "dining_tags": data.get("dining_tags", []) if is_dining else [],
+        "tags": selected_tags,
+        "algorithm_tags": transform_event_types_to_tags(selected_tags),
+        "image_url": data.get("image_url") or existing_event.get("image_url"),
+        "updated_at": datetime.utcnow(),
+    }
