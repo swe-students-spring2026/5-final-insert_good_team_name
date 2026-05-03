@@ -359,7 +359,7 @@ def view_event(event_id):
         event=event,
         host=host,
         requesters=requesters,
-        is_host=str(event["host_id"]) == current_user.id
+        is_host=str(event["host_id"]) == current_user.id,
     )
 
 
@@ -399,7 +399,8 @@ def apply_event(event_id):
     room_id = "_".join(sorted([user_id, host_id]))
 
     # send automated message
-    msg = create_message(room_id, user_id, f"Hi! I would like to join your event: '{event['title']}'. View event: /events/{event_id}")
+    msg_text = f"Hi! I would like to join your event: '{event['title']}'. View event: /events/{event_id}"
+    msg = create_message(room_id, user_id, msg_text)
 
     save_message(messages_collection, msg)
 
@@ -486,6 +487,7 @@ def profile():
     """Show user profile."""
     return render_template("profile.html")
 
+
 @app.route("/my-events")
 @login_required
 def my_events():
@@ -493,14 +495,16 @@ def my_events():
     user = users_collection.find_one({"_id": ObjectId(current_user.id)})
 
     hosted = list(events_collection.find({"host_id": ObjectId(current_user.id)}))
-    
+
     joined_ids = user.get("joined_events", [])
     attending = list(events_collection.find({"_id": {"$in": joined_ids}}))
 
     pending_ids = user.get("pending_events", [])
     pending = list(events_collection.find({"_id": {"$in": pending_ids}}))
 
-    return render_template("my_events.html", hosted=hosted, attending=attending, pending=pending)
+    return render_template(
+        "my_events.html", hosted=hosted, attending=attending, pending=pending
+    )
 
 
 @app.route("/events/<event_id>/edit", methods=["GET", "POST"])
@@ -517,13 +521,15 @@ def edit_event(event_id):
     data = request.form.to_dict()
     events_collection.update_one(
         {"_id": ObjectId(event_id)},
-        {"$set": {
-            "title": data.get("title"),
-            "datetime": data.get("datetime"),
-            "capacity": int(data.get("capacity", 2)),
-            "location": data.get("location"),
-            "description": data.get("description"),
-        }}
+        {
+            "$set": {
+                "title": data.get("title"),
+                "datetime": data.get("datetime"),
+                "capacity": int(data.get("capacity", 2)),
+                "location": data.get("location"),
+                "description": data.get("description"),
+            }
+        },
     )
     flash("Event updated successfully.", "success")
     return redirect(url_for("my_events"))
@@ -539,18 +545,21 @@ def edit_profile():
     data = request.form
     users_collection.update_one(
         {"_id": ObjectId(current_user.id)},
-        {"$set": {
-            "neighborhood": data.get("neighborhood", ""),
-            "pronouns": data.get("pronouns", ""),
-            "drinking_smoking": data.get("drinking_smoking", ""),
-            "job": data.get("job", ""),
-            "dietary": data.get("dietary", ""),
-            "hobbies": data.get("hobbies", ""),
-            "interests": data.get("interests", ""),
-        }}
+        {
+            "$set": {
+                "neighborhood": data.get("neighborhood", ""),
+                "pronouns": data.get("pronouns", ""),
+                "drinking_smoking": data.get("drinking_smoking", ""),
+                "job": data.get("job", ""),
+                "dietary": data.get("dietary", ""),
+                "hobbies": data.get("hobbies", ""),
+                "interests": data.get("interests", ""),
+            }
+        },
     )
     flash("Profile updated successfully.", "success")
     return redirect(url_for("profile"))
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5000")), debug=True)
