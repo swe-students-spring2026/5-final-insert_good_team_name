@@ -14,7 +14,7 @@ from flask_login import (
     login_required,
     current_user,
 )
-from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask_socketio import SocketIO, emit, join_room
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from dotenv import load_dotenv

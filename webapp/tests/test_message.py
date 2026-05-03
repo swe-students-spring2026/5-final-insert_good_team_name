@@ -28,7 +28,7 @@ def test_save_message():
     collection = FakeCollection()
 
     msg = create_message("room1", "user1", "hi")
-    result = save_message(collection, msg)
+    save_message(collection, msg)
 
     assert len(collection.data) == 1
     assert collection.data[0]["message"] == "hi"
