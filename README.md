@@ -6,6 +6,13 @@
 
 An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
 
+## Team Members
+- [Lily](https://github.com/lilylorand)
+- [Sunil](https://github.com/SunilParab)
+- [Calvin](https://github.com/CalvinPun)
+- [Sean](https://github.com/seankimh)
+- [Sara](https://github.com/SaraD-666)
+
 ## Run Locally
 
 1. Create your env file:
