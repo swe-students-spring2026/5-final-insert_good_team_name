@@ -2,7 +2,7 @@ import math
 from typing import List, Tuple
 
 
-def compute_match_score(user, event) -> float:
+def compute_match_score(user, event, user_lookup) -> float:
     """
     Calculates match score between a user and an event.
 
@@ -26,27 +26,22 @@ def compute_match_score(user, event) -> float:
     interest_event = list_similarity(user["tags"], event["tags"])
     dist_score = distance_score(user["location"], event["location"])
 
-    event_score = (
-        0.7 * interest_event +
-        0.3 * dist_score
-    )
+    event_score = 0.7 * interest_event + 0.3 * dist_score
 
     # Group Score
 
-    members = event["attendees"]
+    member_ids = event.get("attendees", [])
+
+    members = [user_lookup(uid) for uid in member_ids if user_lookup(uid) is not None]
 
     interest_group = sum(
-        list_similarity(user["tags"], m["tags"])
-        for m in members
+        list_similarity(user["tags"], m["tags"]) for m in members
     ) / len(members)
 
     group_ages = [m["age"] for m in members]
     age_comp = age_score(user["age"], group_ages)
 
-    group_score = (
-        0.7 * interest_group +
-        0.3 * age_comp
-    )
+    group_score = 0.7 * interest_group + 0.3 * age_comp
 
     # Size Score
 
@@ -60,8 +55,7 @@ def compute_match_score(user, event) -> float:
 
     if event.get("dining", False):
         dietary_multiplier = dietary_score(
-            user.get("dietary_restrictions", []),
-            event.get("dining_tags", [])
+            user.get("dietary_restrictions", []), event.get("dining_tags", [])
         )
     else:
         dietary_multiplier = 1.0
@@ -86,19 +80,23 @@ def list_similarity(a: List[str], b: List[str]) -> float:
     return 0.7 * covered + 0.3 * overlap
 
 
-def haversine_distance_km(loc1: Tuple[float, float], loc2: Tuple[float, float]) -> float:
+def haversine_distance_km(
+    loc1: Tuple[float, float], loc2: Tuple[float, float]
+) -> float:
     lat1, lon1 = loc1
     lat2, lon2 = loc2
 
-    R = 6371 #Radius of earth
+    R = 6371  # Radius of earth
 
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
 
-    a = math.sin(dlat / 2)**2 + \
-        math.cos(math.radians(lat1)) * \
-        math.cos(math.radians(lat2)) * \
-        math.sin(dlon / 2)**2
+    a = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(math.radians(lat1))
+        * math.cos(math.radians(lat2))
+        * math.sin(dlon / 2) ** 2
+    )
 
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
@@ -129,7 +127,8 @@ def age_score(user_age: int, group_ages: List[int]) -> float:
     variance = sum((a - mean) ** 2 for a in group_ages) / len(group_ages)
     std = math.sqrt(variance)
 
-    return math.exp(-((user_age - mean) ** 2) / (2 * (std ** 2 + 4)))
+    return math.exp(-((user_age - mean) ** 2) / (2 * (std**2 + 4)))
+
 
 def dietary_score(user_restrictions, event_dining_tags) -> float:
     """
