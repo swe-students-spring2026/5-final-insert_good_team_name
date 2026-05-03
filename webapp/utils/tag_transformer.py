@@ -27,7 +27,6 @@ PREFERENCE_TO_TAGS = {
     "nature_walks": ["outdoors", "chill"],
     "photography": ["creative", "chill"],
     "fishing": ["outdoors", "chill"],
-
     "gym": ["fitness", "high_energy"],
     "running": ["fitness", "high_energy"],
     "yoga": ["fitness", "chill"],
@@ -36,7 +35,6 @@ PREFERENCE_TO_TAGS = {
     "soccer": ["fitness", "competitive", "social"],
     "tennis": ["fitness", "competitive"],
     "martial_arts": ["fitness", "high_energy"],
-
     "restaurants": ["food", "social"],
     "cooking": ["food", "creative", "chill"],
     "baking": ["food", "creative"],
@@ -44,20 +42,17 @@ PREFERENCE_TO_TAGS = {
     "brunch": ["food", "social", "chill"],
     "wine_tasting": ["drinks", "social", "culture"],
     "bars": ["nightlife", "drinks", "social"],
-
     "parties": ["nightlife", "high_energy", "social"],
     "dancing": ["nightlife", "high_energy"],
     "clubs": ["nightlife", "high_energy", "drinks"],
     "bar_crawls": ["nightlife", "drinks", "high_energy", "social"],
     "meeting_people": ["social", "networking"],
-
     "board_games": ["games", "casual", "social"],
     "video_games": ["games", "casual"],
     "esports": ["games", "competitive"],
     "card_games": ["games", "casual"],
     "trivia": ["games", "competitive", "social"],
     "escape_rooms": ["games", "social", "competitive"],
-
     "painting": ["creative", "chill"],
     "drawing": ["creative", "chill"],
     "writing": ["creative", "chill"],
@@ -65,19 +60,16 @@ PREFERENCE_TO_TAGS = {
     "singing": ["music", "creative"],
     "dancing_art": ["creative", "music"],
     "crafts": ["creative", "chill"],
-
     "reading": ["learning", "chill"],
     "studying": ["learning", "casual"],
     "workshops": ["learning", "social"],
     "language_learning": ["learning", "culture"],
     "coding": ["learning"],
     "public_speaking": ["learning", "networking"],
-
     "networking": ["networking", "social"],
     "entrepreneurship": ["networking", "learning"],
     "startups": ["networking", "learning"],
     "career_events": ["networking", "social"],
-
     "travel": ["culture", "outdoors"],
     "museums": ["culture", "learning"],
     "theater": ["culture", "creative"],
@@ -92,29 +84,22 @@ EVENT_TYPE_TO_TAGS = {
     "beach_day": ["outdoors", "chill", "social"],
     "gym_session": ["fitness", "high_energy"],
     "yoga_class": ["fitness", "chill"],
-
     "restaurant_meetup": ["food", "social"],
     "coffee_meetup": ["chill", "social"],
     "bar_crawl": ["nightlife", "drinks", "high_energy", "social"],
-
     "house_party": ["nightlife", "social", "high_energy"],
     "club_night": ["nightlife", "high_energy", "drinks"],
-
     "board_game_night": ["games", "casual", "social"],
     "trivia_night": ["games", "competitive", "social"],
     "escape_room": ["games", "competitive", "social"],
-
     "art_session": ["creative", "chill"],
     "writing_group": ["creative", "chill"],
     "music_jam": ["music", "creative", "social"],
-
     "study_group": ["learning", "casual"],
     "workshop": ["learning", "social"],
     "language_exchange": ["learning", "culture", "social"],
-
     "networking_event": ["networking", "social"],
     "startup_meetup": ["networking", "learning"],
-
     "museum_visit": ["culture", "learning"],
     "concert": ["music", "high_energy", "social"],
     "festival": ["culture", "social", "high_energy"],
