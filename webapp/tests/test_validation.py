@@ -1,5 +1,5 @@
 # pylint: disable=too-few-public-methods
-from utils.validation import validate_signup, validate_login
+from utils.validation import validate_signup, validate_login, validate_event
 from werkzeug.security import generate_password_hash
 
 
@@ -151,3 +151,76 @@ def test_validate_login_wrong_password():
 
     assert error == "Incorrect password."
     assert user is None
+
+
+def test_validate_signup_invalid_email():
+    data = {
+        "email": "invalidemail",
+        "confirm_email": "invalidemail",
+        "password": "password123",
+        "confirm_password": "password123",
+        "first_name": "Lily",
+        "last_name": "Lorand",
+        "age": "23",
+        "neighborhood": "Bushwick",
+    }
+
+    users_collection = FakeUsersCollection()
+
+    assert validate_signup(data, users_collection) == "Please enter a valid email."
+
+
+def test_validate_signup_emails_do_not_match():
+    data = {
+        "email": "test@example.com",
+        "confirm_email": "different@example.com",
+        "password": "password123",
+        "confirm_password": "password123",
+        "first_name": "Lily",
+        "last_name": "Lorand",
+        "age": "23",
+        "neighborhood": "Bushwick",
+    }
+
+    users_collection = FakeUsersCollection()
+
+    assert validate_signup(data, users_collection) == "Emails do not match."
+
+
+def test_validate_event_capacity_not_number():
+    data = {
+        "title": "Dinner",
+        "datetime": "2026-05-10T18:00",
+        "capacity": "abc",
+        "description": "Dinner event",
+        "location": "NYC",
+        "tags": ["restaurant_meetup", "coffee_meetup", "movie_night"],
+    }
+
+    assert validate_event(data) == "Capacity must be a number."
+
+
+def test_validate_event_tags_as_string():
+    data = {
+        "title": "Dinner",
+        "datetime": "2026-05-10T18:00",
+        "capacity": "5",
+        "description": "Dinner event",
+        "location": "NYC",
+        "tags": "restaurant_meetup",
+    }
+
+    assert validate_event(data) == "You must select between 3 and 5 tags."
+
+
+def test_validate_event_tags_not_list():
+    data = {
+        "title": "Dinner",
+        "datetime": "2026-05-10T18:00",
+        "capacity": "5",
+        "description": "Dinner event",
+        "location": "NYC",
+        "tags": 123,
+    }
+
+    assert validate_event(data) == "Tags must be a list."
