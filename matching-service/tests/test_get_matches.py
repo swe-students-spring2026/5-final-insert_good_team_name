@@ -1,5 +1,5 @@
 from matching.get_matches import get_ranked_events, get_best_event
-from data_helpers import make_user, make_event
+from tests.data_helpers import make_user, make_event
 
 
 class FakeUsersCollection:

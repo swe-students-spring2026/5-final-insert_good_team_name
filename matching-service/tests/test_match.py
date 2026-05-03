@@ -1,5 +1,5 @@
 from matching.event_match import compute_match_score
-from data_helpers import make_user, make_event
+from tests.data_helpers import make_user, make_event
 
 
 def fake_user_lookup(user):
