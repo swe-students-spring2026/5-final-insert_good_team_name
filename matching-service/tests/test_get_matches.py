@@ -2,7 +2,11 @@ from matching.get_matches import get_ranked_events, get_best_event
 from tests.data_helpers import make_user, make_event
 
 
+# pylint disabled here since this is just a helper for tests
+# pylint: disable=too-few-public-methods
 class FakeUsersCollection:
+    """Fake collection to be used for testing"""
+
     def __init__(self, users):
         self.users = users
 
