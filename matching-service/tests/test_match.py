@@ -1,4 +1,4 @@
-from app.event_match import compute_match_score
+from matching.event_match import compute_match_score
 
 
 def make_user(age, tags, loc=(0, 0), ranges=[(3, 10)], dietary=None):

@@ -1,4 +1,4 @@
-from app.get_matches import get_ranked_events, get_best_event
+from matching.get_matches import get_ranked_events, get_best_event
 
 
 def make_user(age, tags, loc=(0, 0), ranges=[(3, 10)], dietary=None):

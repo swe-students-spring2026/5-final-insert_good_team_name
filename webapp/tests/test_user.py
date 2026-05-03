@@ -23,8 +23,8 @@ def test_create_user_has_required_fields():
     assert user["last_initial"] == "L"
     assert user["age"] == 23
     assert user["neighborhood"] == "Bushwick"
-    assert user["created_events"] == []
-    assert user["joined_events"] == []
+    assert not user["created_events"]
+    assert not user["joined_events"]
 
 
 def test_create_user_hashes_password():

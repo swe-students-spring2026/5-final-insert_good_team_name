@@ -1,4 +1,4 @@
-from app.event_match import compute_match_score
+from matching.event_match import compute_match_score
 
 
 def get_best_event(user, event_docs, users_collection):
