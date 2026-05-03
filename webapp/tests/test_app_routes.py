@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name
+
 import pytest
 from app import app
 
@@ -47,6 +49,7 @@ def test_messages_requires_login(client):
 def test_profile_requires_login(client):
     response = client.get("/profile")
     assert response.status_code == 302
+
 
 def test_logout_requires_login(client):
     response = client.get("/logout")
