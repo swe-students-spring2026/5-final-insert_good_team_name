@@ -13,3 +13,4 @@ db = client["dinnermeet"]  # database name
 # Collections
 users_collection = db["users"]
 events_collection = db["events"]
+messages_collection = db["messages"]

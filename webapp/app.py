@@ -1,6 +1,8 @@
 """DinnerMeet Flask application."""
 
 import os
+import logging
+
 
 from bson import ObjectId
 from flask import Flask, render_template, request, redirect, url_for, flash
@@ -12,11 +14,15 @@ from flask_login import (
     login_required,
     current_user,
 )
+from flask_socketio import SocketIO, emit, join_room
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 from dotenv import load_dotenv
 from models.user import create_user
 from models.event_model import create_event
 from utils.validation import validate_signup, validate_login, validate_event
-from db import users_collection, events_collection
+from utils.message import create_message, save_message, get_messages
+from db import users_collection, events_collection, messages_collection
 
 
 # Placeholder matching: return first eligible event.
@@ -29,13 +35,44 @@ def get_best_event_match(_user, candidate_events):
 
 load_dotenv()
 
+
+# loggling
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
+# pylint: disable=too-few-public-methods
+class Config:
+    """config for the socket"""
+
+    SECRET_KEY = os.environ.get("SECRET_KEY", "dev")
+    DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
+    CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*")
+
+
 app = Flask(__name__)
+app.config.from_object(Config)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
-app.secret_key = os.environ.get("SECRET_KEY", "dev")
 
 
+# Handle Reverse PRoxy
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
+
+# Set up the Socket
+socketIO = SocketIO(
+    app,
+    cors_allowed_origins=app.config["CORS_ORIGINS"],
+    logger=True,
+    engineio_logger=True,
+)
+
+
+# pylint: disable=too-few-public-methods
 class User(UserMixin):
     """Flask-Login wrapper for MongoDB user documents."""
 
@@ -118,6 +155,38 @@ def logout():
     return redirect(url_for("login"))
 
 
+# Make a connection
+@socketIO.event
+def connect():
+    """handles conenction"""
+    if not current_user.is_authenticated:
+        return False
+
+    logger.info("%s connected", current_user.id)
+    return True
+
+
+@socketIO.on("join_room")
+def handle_join(data):
+    """join a chat room."""
+    room = data["room"]
+    join_room(room)
+
+
+@socketIO.on("send_message")
+def handle_send_message(data):
+    """Handle sending a message via socket"""
+    if not current_user.is_authenticated:
+        return
+
+    room = data["room"]
+    text = data["message"]
+
+    msg = create_message(room, current_user.id, text)
+    save_message(messages_collection, msg)
+    emit("receive_message", msg, to=room)
+
+
 @app.route("/events")
 @login_required
 def events_page():
@@ -156,7 +225,69 @@ def create_event_route():
 @login_required
 def messages():
     """Show all message conversations."""
-    return render_template("messages.html", conversations=[])
+
+    user_id = current_user.id
+
+    all_messages = list(
+        messages_collection.find(
+            {
+                "$or": [
+                    {"sender": user_id},
+                    {"room_id": {"$regex": f"^{user_id}_|_{user_id}$"}},
+                ]
+            }
+        )
+    )
+
+    conversations = {}
+
+    for msg in all_messages:
+        room = msg["room_id"]
+
+        # find the oppose user
+        user1, user2 = room.split("_", 1)
+        other = user1 if user2 == user_id else user2
+
+        # just keep the newest message
+        if (
+            room not in conversations
+            or msg["timestamp"] > conversations[room]["timestamp"]
+        ):
+            conversations[room] = {
+                "_id": room,
+                "other_user": other,
+                "last_message": msg["message"],
+                "timestamp": msg["timestamp"],
+            }
+
+    return render_template(
+        "messages.html",
+        conversations=sorted(
+            conversations.values(), key=lambda x: x["timestamp"], reverse=True
+        ),
+    )
+
+
+@app.route("/chat/<username>", methods=["GET", "POST"])
+@login_required
+def chat(username):
+    """Chat page: send + load messages"""
+    room_id = "_".join(sorted([current_user.id, username]))
+
+    # post = send message
+    if request.method == "POST":
+        text = request.form.get("message")
+
+        if text:
+            msg = create_message(room_id, current_user.id, text)
+            save_message(messages_collection, msg)
+
+        return redirect(url_for("chat", username=username))
+
+    # get = load messages
+    chat_messages = get_messages(messages_collection, room_id)
+
+    return render_template("chat.html", messages=chat_messages, otherUsername=username)
 
 
 @app.route("/home")
