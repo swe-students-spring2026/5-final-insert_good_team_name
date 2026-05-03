@@ -80,12 +80,8 @@ def test_age_difference():
 def test_size_preference():
     user = make_user(25, ["outdoors"], ranges=[(2, 4)])
 
-    small_event = make_event(
-        ["outdoors"], [make_user(25, ["outdoors"])], intended_size=3
-    )
-    large_event = make_event(
-        ["outdoors"], [make_user(25, ["outdoors"])], intended_size=10
-    )
+    small_event = make_event(["outdoors"], [make_user(25, ["outdoors"])], capacity=3)
+    large_event = make_event(["outdoors"], [make_user(25, ["outdoors"])], capacity=10)
 
     small_score = compute_match_score(user, small_event, fake_user_lookup)
     large_score = compute_match_score(user, large_event, fake_user_lookup)

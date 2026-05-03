@@ -62,7 +62,7 @@ def test_no_events():
     assert best_score == 0.0
 
     ranked = get_ranked_events(user, [], users_collection)
-    assert ranked == []
+    assert not ranked
 
 
 def test_single_event():

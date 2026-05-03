@@ -8,14 +8,14 @@ def compute_match_score(user, event, user_lookup) -> float:
 
     user = {
         "age": int,
-        "tags": List[str],
+        "algorithm_tags": List[str],
         "location": (lat, lon),
         "preferred_group_ranges": List[(min, max)],
         "dietary_restrictions": List[str],
     }
 
     event = {
-        "tags": List[str],
+        "algorithm_tags": List[str],
         "location": (lat, lon),
         "attendees": List[str],
         "capacity": int,
@@ -28,7 +28,7 @@ def compute_match_score(user, event, user_lookup) -> float:
 
     # Event Score
 
-    interest_event = list_similarity(user["tags"], event["tags"])
+    interest_event = list_similarity(user["algorithm_tags"], event["algorithm_tags"])
     dist_score = distance_score(user["location"], event["location"])
 
     event_score = 0.7 * interest_event + 0.3 * dist_score
@@ -40,7 +40,7 @@ def compute_match_score(user, event, user_lookup) -> float:
     members = [user_lookup(uid) for uid in member_ids if user_lookup(uid) is not None]
 
     interest_group = sum(
-        list_similarity(user["tags"], m["tags"]) for m in members
+        list_similarity(user["algorithm_tags"], m["algorithm_tags"]) for m in members
     ) / len(members)
 
     group_ages = [m["age"] for m in members]
@@ -50,13 +50,10 @@ def compute_match_score(user, event, user_lookup) -> float:
 
     # Size Score
 
-    intended_size = event.get("capacity", 6)
     ranges = user.get("preferred_group_ranges", [(3, 10)])
-    size_score1 = size_score(intended_size, ranges)
+    size_score = calculate_size_score(event.get("capacity", 6), ranges)
 
-    # Final Score
-
-    final_score = 0.3 * event_score + 0.5 * group_score + 0.2 * size_score1
+    # Dietary multiplier
 
     if event.get("dining", False):
         dietary_multiplier = dietary_score(
@@ -65,9 +62,9 @@ def compute_match_score(user, event, user_lookup) -> float:
     else:
         dietary_multiplier = 1.0
 
-    final_score *= dietary_multiplier
-
-    return final_score
+    return (
+        0.3 * event_score + 0.5 * group_score + 0.2 * size_score
+    ) * dietary_multiplier
 
 
 def list_similarity(a: List[str], b: List[str]) -> float:
@@ -132,7 +129,7 @@ def distance_to_range(n: int, r_min: int, r_max: int) -> int:
     return min(abs(n - r_min), abs(n - r_max))
 
 
-def size_score(n: int, ranges: List[Tuple[int, int]]) -> float:
+def calculate_size_score(n: int, ranges: List[Tuple[int, int]]) -> float:
     """
     Returns a value based on size preference compared
     to capacity in [0.0, 1.0]

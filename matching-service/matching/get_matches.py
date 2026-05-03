@@ -7,14 +7,14 @@ def get_best_event(user, event_docs, users_collection):
 
     user = {
         "age": int,
-        "tags": List[str],
+        "algorithm_tags": List[str],
         "location": (lat, lon),
         "preferred_group_ranges": List[(min, max)],
         "dietary_restrictions": List[str],
     }
 
     event = {
-        "tags": List[str],
+        "algorithm_tags": List[str],
         "location": (lat, lon),
         "attendees": List[str],
         "capacity": int,
@@ -52,14 +52,14 @@ def get_ranked_events(user, event_docs, users_collection):
 
     user = {
         "age": int,
-        "tags": List[str],
+        "algorithm_tags": List[str],
         "location": (lat, lon),
         "preferred_group_ranges": List[(min, max)],
         "dietary_restrictions": List[str],
     }
 
     event = {
-        "tags": List[str],
+        "algorithm_tags": List[str],
         "location": (lat, lon),
         "attendees": List[str],
         "capacity": int,

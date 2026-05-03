@@ -1,7 +1,10 @@
-def make_user(age, tags, loc=(0, 0), ranges=[(3, 10)], dietary=None):
+"""Helpers for tests to use"""
+
+
+def make_user(age, algorithm_tags, loc=(0, 0), ranges=[(3, 10)], dietary=None):
     return {
         "age": age,
-        "tags": tags,
+        "algorithm_tags": algorithm_tags,
         "location": loc,
         "preferred_group_ranges": ranges,
         "dietary_restrictions": dietary or [],
@@ -9,13 +12,13 @@ def make_user(age, tags, loc=(0, 0), ranges=[(3, 10)], dietary=None):
 
 
 def make_event(
-    tags, members, loc=(0, 0), intended_size=6, dining_tags=None, dining=False
+    algorithm_tags, members, loc=(0, 0), capacity=6, *, dining=False, dining_tags=None
 ):
     return {
-        "tags": tags,
+        "algorithm_tags": algorithm_tags,
         "location": loc,
         "attendees": members,
-        "capacity": intended_size,
+        "capacity": capacity,
         "dining_tags": dining_tags or [],
         "dining": dining,
     }
