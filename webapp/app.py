@@ -18,8 +18,8 @@ from flask_socketio import SocketIO, emit, join_room
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from dotenv import load_dotenv
-from models.user import create_user
-from models.event_model import create_event
+from models.user import create_user, update_user
+from models.event_model import create_event, update_event
 from utils.validation import validate_signup, validate_login, validate_event
 from utils.message import create_message, save_message
 from db import users_collection, events_collection, messages_collection
@@ -219,6 +219,46 @@ def create_event_route():
 
     flash("Event created successfully.", "success")
     return redirect(url_for("events_page"))
+
+
+@app.route("/events/<event_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_event(event_id):
+    """Edit an event (host only)."""
+
+    event = events_collection.find_one({"_id": ObjectId(event_id)})
+
+    if not event:
+        return "Event not found", 404
+
+    # Only host can edit
+    if str(event["host_id"]) != current_user.id:
+        return "Unauthorized", 403
+
+    if request.method == "GET":
+        return render_template("edit_event.html", event=event)
+
+    data = request.form.to_dict()
+
+    # multi-select fields
+    data["tags"] = request.form.getlist("tags")
+    data["dining_tags"] = request.form.getlist("dining_tags")
+
+    # Validate (same as create, since title is hidden in form)
+    error = validate_event(data)
+    if error:
+        return render_template("edit_event.html", event=event, error=error)
+
+    # Update event with new data while keeping unchanged fields intact
+    updated_event = update_event(data, event)
+
+    events_collection.update_one(
+        {"_id": ObjectId(event_id)},
+        {"$set": updated_event},
+    )
+
+    flash("Event updated successfully.", "success")
+    return redirect(url_for("view_event", event_id=event_id))
 
 
 @app.route("/messages")
@@ -475,6 +515,38 @@ def reject_user(event_id, user_id):
 def profile():
     """Show user profile."""
     return render_template("profile.html")
+
+
+@app.route("/profile/edit", methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    """Edit current user's profile (restricted fields only)."""
+
+    user = users_collection.find_one({"_id": ObjectId(current_user.id)})
+
+    if not user:
+        return "User not found", 404
+
+    if request.method == "GET":
+        return render_template("edit_profile.html", user=user)
+
+    data = request.form.to_dict()
+
+    # multi-select fields
+    data["dietary_restrictions"] = request.form.getlist("dietary_restrictions")
+    data["hobbies"] = request.form.getlist("hobbies")
+    data["interests"] = request.form.getlist("interests")
+
+    # update only allowed fields
+    updated_user = update_user(data)
+
+    users_collection.update_one(
+        {"_id": ObjectId(current_user.id)},
+        {"$set": updated_user},
+    )
+
+    flash("Profile updated successfully.", "success")
+    return redirect(url_for("profile"))
 
 
 if __name__ == "__main__":
