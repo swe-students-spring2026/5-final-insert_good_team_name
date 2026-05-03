@@ -79,7 +79,7 @@ def signup():
     if request.method == "GET":
         return render_template("signup.html")
 
-    data = request.form
+    data = requasest.form
 
     error = validate_signup(data, users_collection)
     if error:
