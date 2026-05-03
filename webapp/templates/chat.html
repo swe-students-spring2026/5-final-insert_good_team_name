@@ -12,7 +12,23 @@
 </div>
 
 <input id="messageInput" type="text" placeholder="Type message..." />
-<button type="submit">Send</button>
+<button onclick="sendMessage()">Send</button>
+
+<hr>
+
+<h3>Events with {{ otherUsername }}</h3>
+
+{% if shared_events %}
+    <ul>
+        {% for event in shared_events %}
+            <li>
+                {{ event.title }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No shared events yet.</p>
+{% endif %}
 
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
 

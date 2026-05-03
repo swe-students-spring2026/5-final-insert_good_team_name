@@ -268,26 +268,47 @@ def messages():
     )
 
 
-@app.route("/chat/<username>", methods=["GET", "POST"])
+@app.route("/chat/<user_id>", methods=["GET"])
 @login_required
-def chat(username):
-    """Chat page: send + load messages"""
-    room_id = "_".join(sorted([current_user.id, username]))
+def chat(user_id):
+    """Chat page"""
 
-    # post = send message
-    if request.method == "POST":
-        text = request.form.get("message")
+    room_id = "_".join(sorted([current_user.id, user_id]))
 
-        if text:
-            msg = create_message(room_id, current_user.id, text)
-            save_message(messages_collection, msg)
+    chat_messages = list(
+        messages_collection.find({"room_id": room_id}).sort("timestamp", 1)
+    )
 
-        return redirect(url_for("chat", username=username))
+    host_obj_id = ObjectId(user_id)
+    current_obj_id = ObjectId(current_user.id)
 
-    # get = load messages
-    chat_messages = get_messages(messages_collection, room_id)
+    shared_events = list(
+        events_collection.find({
+            "$and": [
+                {
+                    "$or": [
+                        {"host_id": host_obj_id},
+                        {"attendees": host_obj_id},
+                        {"join_requests": host_obj_id}
+                    ]
+                },
+                {
+                    "$or": [
+                        {"host_id": current_obj_id},
+                        {"attendees": current_obj_id},
+                        {"join_requests": current_obj_id}
+                    ]
+                }
+            ]
+        })
+    )
 
-    return render_template("chat.html", messages=chat_messages, otherUsername=username)
+    return render_template(
+        "chat.html",
+        messages=chat_messages,
+        otherUsername=user_id,
+        shared_events=shared_events
+    )
 
 
 @app.route("/home")
@@ -333,16 +354,22 @@ def view_event(event_id):
 @app.route("/events/<event_id>/apply", methods=["POST"])
 @login_required
 def apply_event(event_id):
-    """user applies to the events"""
+    """User applies to the event."""
     user_id = current_user.id
     event_obj_id = ObjectId(event_id)
 
+    #look up event
     event = events_collection.find_one({"_id": event_obj_id})
-
     if not event:
         return "Event not found", 404
 
     host_id = str(event["host_id"])
+
+    user = users_collection.find_one({"_id": ObjectId(user_id)})
+
+    #prevent repeated applications
+    if event_obj_id in user.get("pending_events", []):
+        return redirect(url_for("chat", user_id=host_id))
 
     # update user to pending
     users_collection.update_one(
@@ -364,7 +391,7 @@ def apply_event(event_id):
 
     save_message(messages_collection, msg)
 
-    return redirect(url_for("chat", username=host_id))
+    return redirect(url_for("chat", user_id=host_id))
 
 
 @app.route("/events/<event_id>/reject", methods=["POST"])
@@ -432,8 +459,8 @@ def reject_user(event_id, user_id):
     # update users
     users_collection.update_one(
         {"_id": user_obj_id},
-        {"$pull": {"pending_events": event_obj_id}},
         {
+            "$pull": {"pending_events": event_obj_id},
             "$addToSet": {"rejected_events": event_obj_id},
         },
     )
