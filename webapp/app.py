@@ -27,12 +27,14 @@ from utils.message import create_message, save_message, get_messages
 from db import users_collection, events_collection, messages_collection
 
 
-# This is a placeholder function for the matching algorithm. It currently just returns the first event.
-def get_best_event_match(user, events):
-    if not events:
+
+# Placeholder matching: return first eligible event.
+def get_best_event_match(_user, candidate_events):
+    if not candidate_events:
         return None
 
-    return events[0]
+    return candidate_events[0]
+
 
 
 load_dotenv()
@@ -71,7 +73,10 @@ socketIO = SocketIO(
 )
 
 
+
 class User(UserMixin):
+    """Flask-Login wrapper for MongoDB user documents."""
+
     def __init__(self, user_data):
         self.id = str(user_data["_id"])
         self.email = user_data["email"]
@@ -88,6 +93,7 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
+    """Render app landing page for anonymous users."""
     if current_user.is_authenticated:
         return render_template("home.html")
     return render_template("landing.html")
@@ -183,7 +189,7 @@ def handle_send_message(data):
 
 @app.route("/events")
 @login_required
-def events():
+def events_page():
     """Show all events."""
     return render_template("events.html", events=[])
 
@@ -197,7 +203,6 @@ def create_event_route():
 
     data = request.form.to_dict()
     data["tags"] = request.form.getlist("tags")
-    data["tags"] = request.form.getlist("tags")
 
     error = validate_event(data)
     if error:
@@ -210,11 +215,11 @@ def create_event_route():
     users_collection.update_one(
         {"_id": ObjectId(current_user.id)},
         {"$push": {"created_events": result.inserted_id}},
-        {"$push": {"created_events": result.inserted_id}},
     )
 
     flash("Event created successfully.", "success")
-    return redirect(url_for("events"))
+    return redirect(url_for("events_page"))
+
 
 
 @app.route("/messages")
@@ -286,6 +291,7 @@ def chat(username):
     return render_template("chat.html", messages=messages, otherUsername=username)
 
 
+
 @app.route("/home")
 @login_required
 def home():
@@ -295,16 +301,7 @@ def home():
     joined_events = user.get("joined_events", [])
     pending_events = user.get("pending_events", [])
 
-    events = list(
-        events_collection.find(
-            {
-                "event_open": True,
-                "host_id": {"$ne": current_user.id},
-                "_id": {"$nin": rejected_events + joined_events + pending_events},
-            }
-        )
-    )
-    events = list(
+    candidate_events = list(
         events_collection.find(
             {
                 "event_open": True,
@@ -314,13 +311,11 @@ def home():
         )
     )
 
-    # TODO: create a function to calculate best match based on matching service algorithm
-    best_event = get_best_event_match(user, events)
+    # Placeholder until matching-service scoring is integrated.
+    best_event = get_best_event_match(user, candidate_events)
 
     return render_template("home.html", event=best_event)
 
-
-from bson.objectid import ObjectId
 
 
 @app.route("/events/<event_id>")

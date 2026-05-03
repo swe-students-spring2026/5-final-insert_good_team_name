@@ -1,12 +1,15 @@
+# pylint: disable=too-few-public-methods
 from utils.validation import validate_signup, validate_login
 from werkzeug.security import generate_password_hash
 
 
 class FakeUsersCollection:
+    """Minimal mock collection for validation tests."""
+
     def __init__(self, existing_user=None):
         self.existing_user = existing_user
 
-    def find_one(self, query):
+    def find_one(self, _query):
         return self.existing_user
 
 

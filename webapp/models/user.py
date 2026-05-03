@@ -15,9 +15,7 @@ def create_user(data):
             "drinks": data.get("drinks"),
             "smokes": data.get("smokes"),
         },
-        "dietary_restrictions": data.get(
-            "dietary_restrictions", []
-        ),  # Change to preferences?
+        "dietary_restrictions": data.get("dietary_restrictions", []),
         "hobbies": data.get("hobbies", []),
         "interests": data.get("interests", []),
         "created_events": [],
