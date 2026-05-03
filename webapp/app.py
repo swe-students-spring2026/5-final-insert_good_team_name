@@ -315,6 +315,7 @@ def home():
     return render_template("home.html", event=best_event)
 
 
+#For users
 @app.route("/events/<event_id>")
 @login_required
 def view_event(event_id):
@@ -329,6 +330,47 @@ def view_event(event_id):
     return render_template("event.html", event=event, host=host)
 
 
+@app.route("/events/<event_id>/apply", methods=["POST"])
+@login_required
+def apply_event(event_id):
+    """user applies to the events"""
+    user_id = current_user.id
+    event_obj_id = ObjectId(event_id)
+
+    event = events_collection.find_one({"_id": event_obj_id})
+
+    if not event:
+        return "Event not found", 404
+
+    host_id = str(event["host_id"])
+
+    #update user to pending
+    users_collection.update_one(
+        {"_id": ObjectId(user_id)},
+        {"$addToSet": {"pending_events": event_obj_id}},
+    )
+
+    #update join requests
+    events_collection.update_one(
+        {"_id": event_obj_id},
+        {"$addToSet": {"join_requests": ObjectId(user_id)}},
+    )
+
+    #create new chat room
+    room_id = "_".join(sorted([user_id, host_id]))
+
+    #send automated message
+    msg = create_message(
+        room_id,
+        user_id,
+        "Hi! I would like to join your event."
+    )
+
+    save_message(messages_collection, msg)
+
+    return redirect(url_for("chat", username=host_id))
+
+
 @app.route("/events/<event_id>/reject", methods=["POST"])
 @login_required
 def reject_event(event_id):
@@ -338,6 +380,69 @@ def reject_event(event_id):
     )
 
     return redirect(url_for("home"))
+
+
+#These are for hosts
+@app.route("/events/<event_id>/accept/<user_id>", methods=["POST"])
+@login_required
+def accept_user(event_id, user_id):
+    """host accepts a user into event"""
+    event_obj_id = ObjectId(event_id)
+    user_obj_id = ObjectId(user_id)
+
+    #update from pending to attendees.
+    events_collection.update_one(
+        {"_id": event_obj_id},
+        {
+            "$pull": {"join_requests": user_obj_id},
+            "$addToSet": {"attendees": user_obj_id},
+        },
+    )
+
+    #update user
+    users_collection.update_one(
+        {"_id": user_obj_id},
+        {
+            "$pull": {"pending_events": event_obj_id},
+            "$addToSet": {"joined_events": event_obj_id},
+        },
+    )
+
+    #send approval message
+    room_id = "_".join(sorted([str(user_id), current_user.id]))
+
+    msg = create_message(
+        room_id,
+        current_user.id,
+        "You have been accepted to the event!"
+    )
+
+    save_message(messages_collection, msg)
+
+    return redirect(url_for("view_event", event_id=event_id))
+
+
+@app.route("/events/<event_id>/reject_user/<user_id>", methods=["POST"])
+@login_required
+def reject_user(event_id, user_id):
+    """Host rejects a user"""
+    event_obj_id = ObjectId(event_id)
+    user_obj_id = ObjectId(user_id)
+
+    #remove from join requests
+    events_collection.update_one(
+        {"_id": event_obj_id},
+        {"$pull": {"join_requests": user_obj_id}},
+    )
+
+    #update users
+    users_collection.update_one(
+        {"_id": user_obj_id},
+        {"$pull": {"pending_events": event_obj_id}},
+        {"$addToSet": {"rejected_events": event_obj_id},}
+    )
+
+    return redirect(url_for("view_event", event_id=event_id))
 
 
 @app.route("/profile")
