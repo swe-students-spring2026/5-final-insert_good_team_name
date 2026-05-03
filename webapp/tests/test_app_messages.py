@@ -12,6 +12,7 @@ def client():
 
 class FakeCursor:
     """mock mongodb cursor obj for testing"""
+
     def __init__(self, data):
         self.data = data
 
@@ -52,16 +53,21 @@ def test_chat_page(client, monkeypatch):
     other_id = str(ObjectId())
 
     fake_messages = [
-        {"room_id": "_".join(sorted([user_id, other_id])), "sender": user_id, "message": "hi", "timestamp": 1}
+        {
+            "room_id": "_".join(sorted([user_id, other_id])),
+            "sender": user_id,
+            "message": "hi",
+            "timestamp": 1,
+        }
     ]
 
     monkeypatch.setattr(app, "messages_collection", FakeCollection(fake_messages))
     monkeypatch.setattr(app, "events_collection", FakeCollection([]))
 
-    monkeypatch.setattr("flask_login.utils._get_user", lambda: type("User", (), {
-        "is_authenticated": True,
-        "id": user_id
-    })())
+    monkeypatch.setattr(
+        "flask_login.utils._get_user",
+        lambda: type("User", (), {"is_authenticated": True, "id": user_id})(),
+    )
 
     response = client.get(f"/chat/{other_id}")
 
@@ -76,13 +82,10 @@ def test_apply_event(client, monkeypatch):
     fake_user = {
         "_id": ObjectId(user_id),
         "pending_events": [],
-        "email": "test@test.com"
+        "email": "test@test.com",
     }
 
-    fake_event = {
-        "_id": event_id,
-        "host_id": ObjectId(host_id)
-    }
+    fake_event = {"_id": event_id, "host_id": ObjectId(host_id)}
 
     monkeypatch.setattr(app, "users_collection", FakeCollection([fake_user]))
     monkeypatch.setattr(app, "events_collection", FakeCollection([fake_event]))
@@ -127,3 +130,89 @@ def test_reject_user(client, monkeypatch):
     response = client.post(f"/events/{event_id}/reject_user/{user_id}")
 
     assert response.status_code == 302
+
+
+def test_messages_page(client, monkeypatch):
+    user_id = str(ObjectId())
+
+    fake_messages = [
+        {
+            "room_id": "_".join(sorted([user_id, "2"])),
+            "sender": user_id,
+            "message": "hello",
+            "timestamp": 1,
+        }
+    ]
+
+    monkeypatch.setattr(app, "messages_collection", FakeCollection(fake_messages))
+    monkeypatch.setattr(app, "users_collection", FakeCollection([]))
+
+    monkeypatch.setattr(app, "render_template", lambda *args, **kwargs: "ok")
+
+    monkeypatch.setattr(
+        "flask_login.utils._get_user",
+        lambda: type("User", (), {"is_authenticated": True, "id": user_id})(),
+    )
+
+    response = client.get("/messages")
+
+    assert response.status_code == 200
+
+
+def test_socket_connect(monkeypatch):
+    user_id = str(ObjectId())
+
+    monkeypatch.setattr(
+        "flask_login.utils._get_user",
+        lambda: type("User", (), {"is_authenticated": True, "id": user_id})(),
+    )
+
+    socket_client = app.socketIO.test_client(flask_app)
+
+    assert socket_client.is_connected()
+
+
+def test_join_room(monkeypatch):
+    user_id = str(ObjectId())
+
+    monkeypatch.setattr(
+        "flask_login.utils._get_user",
+        lambda: type("User", (), {"is_authenticated": True, "id": user_id})(),
+    )
+
+    socket_client = app.socketIO.test_client(flask_app)
+
+    socket_client.emit("join_room", {"room": "test_room"})
+
+    assert True
+
+
+def test_send_message(monkeypatch):
+    user_id = str(ObjectId())
+
+    fake_collection = FakeCollection([])
+
+    monkeypatch.setattr(app, "messages_collection", fake_collection)
+
+    # 👇 mock create_message（关键）
+    monkeypatch.setattr(
+        app,
+        "create_message",
+        lambda room, sender, message: {
+            "room_id": room,
+            "sender": sender,
+            "message": message,
+            "timestamp": 0,  # 用 int 代替 datetime
+        },
+    )
+
+    monkeypatch.setattr(
+        "flask_login.utils._get_user",
+        lambda: type("User", (), {"is_authenticated": True, "id": user_id})(),
+    )
+
+    socket_client = app.socketIO.test_client(flask_app)
+
+    socket_client.emit("send_message", {"room": "room1", "message": "hello"})
+
+    assert len(fake_collection.data) == 1

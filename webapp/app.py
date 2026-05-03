@@ -283,31 +283,33 @@ def chat(user_id):
     current_obj_id = ObjectId(current_user.id)
 
     shared_events = list(
-        events_collection.find({
-            "$and": [
-                {
-                    "$or": [
-                        {"host_id": host_obj_id},
-                        {"attendees": host_obj_id},
-                        {"join_requests": host_obj_id}
-                    ]
-                },
-                {
-                    "$or": [
-                        {"host_id": current_obj_id},
-                        {"attendees": current_obj_id},
-                        {"join_requests": current_obj_id}
-                    ]
-                }
-            ]
-        })
+        events_collection.find(
+            {
+                "$and": [
+                    {
+                        "$or": [
+                            {"host_id": host_obj_id},
+                            {"attendees": host_obj_id},
+                            {"join_requests": host_obj_id},
+                        ]
+                    },
+                    {
+                        "$or": [
+                            {"host_id": current_obj_id},
+                            {"attendees": current_obj_id},
+                            {"join_requests": current_obj_id},
+                        ]
+                    },
+                ]
+            }
+        )
     )
 
     return render_template(
         "chat.html",
         messages=chat_messages,
         otherUsername=user_id,
-        shared_events=shared_events
+        shared_events=shared_events,
     )
 
 
@@ -358,7 +360,7 @@ def apply_event(event_id):
     user_id = current_user.id
     event_obj_id = ObjectId(event_id)
 
-    #look up event
+    # look up event
     event = events_collection.find_one({"_id": event_obj_id})
     if not event:
         return "Event not found", 404
@@ -367,7 +369,7 @@ def apply_event(event_id):
 
     user = users_collection.find_one({"_id": ObjectId(user_id)})
 
-    #prevent repeated applications
+    # prevent repeated applications
     if event_obj_id in user.get("pending_events", []):
         return redirect(url_for("chat", user_id=host_id))
 
