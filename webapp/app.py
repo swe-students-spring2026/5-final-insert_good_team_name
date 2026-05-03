@@ -43,7 +43,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# pylint: disable=too-few-public-methods
 class Config:
+    """config for the socket"""
+
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev")
     DEBUG = os.environ.get("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
     CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*")
