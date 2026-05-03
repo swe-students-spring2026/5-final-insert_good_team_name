@@ -1,12 +1,15 @@
+# pylint: disable=too-few-public-methods
 from utils.validation import validate_signup, validate_login
 from werkzeug.security import generate_password_hash
 
 
 class FakeUsersCollection:
+    """Minimal mock collection for validation tests."""
+
     def __init__(self, existing_user=None):
         self.existing_user = existing_user
 
-    def find_one(self, query):
+    def find_one(self, _query):
         return self.existing_user
 
 
@@ -41,7 +44,10 @@ def test_validate_signup_missing_required_field():
 
     users_collection = FakeUsersCollection()
 
-    assert validate_signup(data, users_collection) == "Please fill out all required fields."
+    assert (
+        validate_signup(data, users_collection)
+        == "Please fill out all required fields."
+    )
 
 
 def test_validate_signup_passwords_do_not_match():
@@ -75,7 +81,11 @@ def test_validate_signup_existing_user():
 
     users_collection = FakeUsersCollection(existing_user={"email": "test@example.com"})
 
-    assert validate_signup(data, users_collection) == "An account with this email already exists."
+    assert (
+        validate_signup(data, users_collection)
+        == "An account with this email already exists."
+    )
+
 
 def test_validate_login_success():
     data = {
