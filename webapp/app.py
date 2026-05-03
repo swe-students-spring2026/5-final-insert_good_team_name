@@ -315,7 +315,7 @@ def home():
     return render_template("home.html", event=best_event)
 
 
-#For users
+# For users
 @app.route("/events/<event_id>")
 @login_required
 def view_event(event_id):
@@ -344,27 +344,23 @@ def apply_event(event_id):
 
     host_id = str(event["host_id"])
 
-    #update user to pending
+    # update user to pending
     users_collection.update_one(
         {"_id": ObjectId(user_id)},
         {"$addToSet": {"pending_events": event_obj_id}},
     )
 
-    #update join requests
+    # update join requests
     events_collection.update_one(
         {"_id": event_obj_id},
         {"$addToSet": {"join_requests": ObjectId(user_id)}},
     )
 
-    #create new chat room
+    # create new chat room
     room_id = "_".join(sorted([user_id, host_id]))
 
-    #send automated message
-    msg = create_message(
-        room_id,
-        user_id,
-        "Hi! I would like to join your event."
-    )
+    # send automated message
+    msg = create_message(room_id, user_id, "Hi! I would like to join your event.")
 
     save_message(messages_collection, msg)
 
@@ -382,7 +378,7 @@ def reject_event(event_id):
     return redirect(url_for("home"))
 
 
-#These are for hosts
+# These are for hosts
 @app.route("/events/<event_id>/accept/<user_id>", methods=["POST"])
 @login_required
 def accept_user(event_id, user_id):
@@ -390,7 +386,7 @@ def accept_user(event_id, user_id):
     event_obj_id = ObjectId(event_id)
     user_obj_id = ObjectId(user_id)
 
-    #update from pending to attendees.
+    # update from pending to attendees.
     events_collection.update_one(
         {"_id": event_obj_id},
         {
@@ -399,7 +395,7 @@ def accept_user(event_id, user_id):
         },
     )
 
-    #update user
+    # update user
     users_collection.update_one(
         {"_id": user_obj_id},
         {
@@ -408,13 +404,11 @@ def accept_user(event_id, user_id):
         },
     )
 
-    #send approval message
+    # send approval message
     room_id = "_".join(sorted([str(user_id), current_user.id]))
 
     msg = create_message(
-        room_id,
-        current_user.id,
-        "You have been accepted to the event!"
+        room_id, current_user.id, "You have been accepted to the event!"
     )
 
     save_message(messages_collection, msg)
@@ -429,17 +423,19 @@ def reject_user(event_id, user_id):
     event_obj_id = ObjectId(event_id)
     user_obj_id = ObjectId(user_id)
 
-    #remove from join requests
+    # remove from join requests
     events_collection.update_one(
         {"_id": event_obj_id},
         {"$pull": {"join_requests": user_obj_id}},
     )
 
-    #update users
+    # update users
     users_collection.update_one(
         {"_id": user_obj_id},
         {"$pull": {"pending_events": event_obj_id}},
-        {"$addToSet": {"rejected_events": event_obj_id},}
+        {
+            "$addToSet": {"rejected_events": event_obj_id},
+        },
     )
 
     return redirect(url_for("view_event", event_id=event_id))
