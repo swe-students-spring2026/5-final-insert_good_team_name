@@ -10,15 +10,20 @@ def compute_match_score(user, event, user_lookup) -> float:
         "age": int,
         "tags": List[str],
         "location": (lat, lon),
-        "preferred_group_ranges": List[(min, max)]
+        "preferred_group_ranges": List[(min, max)],
+        "dietary_restrictions": List[str],
     }
 
     event = {
         "tags": List[str],
         "location": (lat, lon),
-        "attendees": List[user],
-        "capacity": int
+        "attendees": List[str],
+        "capacity": int,
+        "dining": bool,
+        "dining_tags": List[str],
     }
+
+    user_lookup = map for uid to struct
     """
 
     # Event Score
@@ -66,6 +71,10 @@ def compute_match_score(user, event, user_lookup) -> float:
 
 
 def list_similarity(a: List[str], b: List[str]) -> float:
+    """
+    Returns a value based on how similar preference
+    tags are to event tags in [0.0, 1.0]
+    """
     set_a, set_b = set(a), set(b)
     if not set_a and not set_b:
         return 1.0
@@ -83,6 +92,9 @@ def list_similarity(a: List[str], b: List[str]) -> float:
 def haversine_distance_km(
     loc1: Tuple[float, float], loc2: Tuple[float, float]
 ) -> float:
+    """
+    Helper for distance math
+    """
     lat1, lon1 = loc1
     lat2, lon2 = loc2
 
@@ -103,18 +115,28 @@ def haversine_distance_km(
 
 
 def distance_score(user_loc, event_loc) -> float:
+    """
+    Returns a value based on distance from event in [0.0, 1.0]
+    """
     d = haversine_distance_km(user_loc, event_loc)
     d = min(d, 50)
     return math.exp(-d / 10)
 
 
 def distance_to_range(n: int, r_min: int, r_max: int) -> int:
+    """
+    Helper for math
+    """
     if r_min <= n <= r_max:
         return 0
     return min(abs(n - r_min), abs(n - r_max))
 
 
 def size_score(n: int, ranges: List[Tuple[int, int]]) -> float:
+    """
+    Returns a value based on size preference compared
+    to capacity in [0.0, 1.0]
+    """
     if not ranges:
         return 0.5
 
@@ -123,6 +145,9 @@ def size_score(n: int, ranges: List[Tuple[int, int]]) -> float:
 
 
 def age_score(user_age: int, group_ages: List[int]) -> float:
+    """
+    Returns a value based on age similarity in [0.0, 1.0]
+    """
     mean = sum(group_ages) / len(group_ages)
     variance = sum((a - mean) ** 2 for a in group_ages) / len(group_ages)
     std = math.sqrt(variance)
@@ -132,10 +157,7 @@ def age_score(user_age: int, group_ages: List[int]) -> float:
 
 def dietary_score(user_restrictions, event_dining_tags) -> float:
     """
-    Returns a multiplier in [min_penalty, 1.0]
-
-    - 1.0 → fully compatible
-    - <1.0 → missing support
+    Returns a multiplier in [penalty_min, 1.0]
     """
 
     if not user_restrictions:
@@ -148,6 +170,6 @@ def dietary_score(user_restrictions, event_dining_tags) -> float:
 
     coverage = matches / len(set_u)
 
-    penalty_cap = 0.5
+    penalty_min = 0.5
 
-    return penalty_cap + (1 - penalty_cap) * coverage
+    return penalty_min + (1 - penalty_min) * coverage

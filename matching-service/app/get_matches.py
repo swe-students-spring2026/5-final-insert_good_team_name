@@ -2,6 +2,28 @@ from app.event_match import compute_match_score
 
 
 def get_best_event(user, event_docs, users_collection):
+    """
+    Returns the best event from event_docs for the user
+
+    user = {
+        "age": int,
+        "tags": List[str],
+        "location": (lat, lon),
+        "preferred_group_ranges": List[(min, max)],
+        "dietary_restrictions": List[str],
+    }
+
+    event = {
+        "tags": List[str],
+        "location": (lat, lon),
+        "attendees": List[str],
+        "capacity": int,
+        "dining": bool,
+        "dining_tags": List[str],
+    }
+
+    users_collection: database collection used to fetch user documents by _id
+    """
     if not event_docs:
         return None, 0.0
 
@@ -25,6 +47,28 @@ def get_best_event(user, event_docs, users_collection):
 
 
 def get_ranked_events(user, event_docs, users_collection):
+    """
+    Returns an ordered list of events from event_docs for the user
+
+    user = {
+        "age": int,
+        "tags": List[str],
+        "location": (lat, lon),
+        "preferred_group_ranges": List[(min, max)],
+        "dietary_restrictions": List[str],
+    }
+
+    event = {
+        "tags": List[str],
+        "location": (lat, lon),
+        "attendees": List[str],
+        "capacity": int,
+        "dining": bool,
+        "dining_tags": List[str],
+    }
+
+    users_collection: database collection used to fetch user documents by _id
+    """
     all_ids = set()
     for e in event_docs:
         all_ids.update(e.get("attendees", []))
@@ -43,6 +87,9 @@ def get_ranked_events(user, event_docs, users_collection):
 
 
 def build_user_lookup(user_ids, users_collection):
+    """
+    Helper to make a user lookup
+    """
     if not user_ids:
         return lambda uid: None
 
