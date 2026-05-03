@@ -14,8 +14,8 @@ def create_user(data):
         "neighborhood": data["neighborhood"],
         "pronouns": data.get("pronouns"),
         "drinking_smoking": {
-            "drinks": data.get("drinks"),
-            "smokes": data.get("smokes"),
+            "drinks": bool(data.get("drinks", False)),
+            "smokes": bool(data.get("smokes", False)),
         },
         "dietary_restrictions": data.get("dietary_restrictions", []),
         "hobbies": data.get("hobbies", []),
@@ -26,5 +26,22 @@ def create_user(data):
         "rejected_events": [],
         "pending_events": [],
         "created_at": datetime.utcnow(),
+        "updated_at": datetime.utcnow(),
+    }
+
+
+def update_user(data):
+    interests = data.get("interests", [])
+    return {
+        "neighborhood": data["neighborhood"],
+        "pronouns": data.get("pronouns", ""),
+        "dietary_restrictions": data.get("dietary_restrictions", []),
+        "hobbies": data.get("hobbies", []),
+        "interests": data.get("interests", []),
+        "algorithm_tags": transform_preferences_to_tags(interests),
+        "drinking_smoking": {
+            "drinks": bool(data.get("drinks", False)),
+            "smokes": bool(data.get("smokes", False)),
+        },
         "updated_at": datetime.utcnow(),
     }
