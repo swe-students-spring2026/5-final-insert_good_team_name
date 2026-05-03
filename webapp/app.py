@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 from models.user import create_user
 from models.event_model import create_event
 from utils.validation import validate_signup, validate_login, validate_event
-from utils.message import create_message, save_message, get_messages
+from utils.message import create_message, save_message
 from db import users_collection, events_collection, messages_collection
 
 

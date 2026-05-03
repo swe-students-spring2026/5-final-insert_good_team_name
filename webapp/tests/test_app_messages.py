@@ -1,3 +1,5 @@
+# pylint: disable=redefined-outer-name, unnecessary-lambda
+
 import pytest
 from bson import ObjectId
 import app
@@ -31,7 +33,7 @@ class FakeCollection:
     def __init__(self, data=None):
         self.data = data or []
 
-    def find(self, query):
+    def find(self, _):
         return FakeCursor(self.data)
 
     def find_one(self, query):
@@ -44,7 +46,7 @@ class FakeCollection:
         self.data.append(item)
         return True
 
-    def update_one(self, query, update):
+    def update_one(self, _, __):
         return True
 
 
