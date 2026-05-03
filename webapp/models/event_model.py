@@ -1,7 +1,9 @@
 from datetime import datetime
+from utils.tag_transformer import transform_event_type_to_tags
 
 
 def create_event(data, host_id, image_url=None):
+    selected_tags = data.get("tags", [])
     return {
         "title": data["title"],
         # REQUIRED fields
@@ -17,7 +19,8 @@ def create_event(data, host_id, image_url=None):
             if isinstance(data.get("dining_tags", []), list)
             else []
         ),
-        "tags": data.get("tags", []) if isinstance(data.get("tags", []), list) else [],
+        "tags": selected_tags if isinstance(selected_tags, list) else [],
+        "algorithm_tags": transform_event_type_to_tags(selected_tags),
         "image_url": image_url,
         "event_open": True,
         # Host automatically joins
