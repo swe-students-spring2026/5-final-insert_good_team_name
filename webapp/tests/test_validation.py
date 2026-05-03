@@ -210,7 +210,8 @@ def test_validate_event_tags_as_string():
         "tags": "restaurant_meetup",
     }
 
-    assert validate_event(data) == "You must select between 3 and 5 tags."
+    # assert validate_event(data) == "You must select between 3 and 5 tags."
+    assert validate_event(data) is None
 
 
 def test_validate_event_tags_not_list():

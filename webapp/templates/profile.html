@@ -5,38 +5,91 @@
 <div class="profile-container">
     <div class="profile-header">
         <h1>{{ current_user.data.get('first_name', '') }} {{ current_user.data.get('last_name', '')[:1] }}.</h1>
-        <a href="/logout" class="btn-logout">Log Out</a>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button class="btn" style="margin-top: 0;" onclick="toggleEdit()">Edit Profile</button>
+            <a href="/logout" class="btn-logout">Log Out</a>
+        </div>
     </div>
 
+    <form method="POST" action="/profile/edit" id="edit-form">
     <div class="profile-details">
         <div class="profile-section">
             <h3>About</h3>
             <p><strong>Email:</strong> {{ current_user.data.get('email', '') }}</p>
             <p><strong>Age:</strong> {{ current_user.data.get('age', '') }}</p>
-            <p><strong>Neighborhood:</strong> {{ current_user.data.get('neighborhood', '') }}</p>
-            <p><strong>Pronouns:</strong> {{ current_user.data.get('pronouns', '') }}</p>
-            <p><strong>Job/Student:</strong> {{ current_user.data.get('job', '') }}</p>
-            <p><strong>Drinking/Smoking:</strong> {{ current_user.data.get('drinking_smoking', '') }}</p>
-            <p><strong>Dietary Restrictions:</strong> {{ current_user.data.get('dietary', '') }}</p>
-            <p>{{ current_user.data.get('interests', '') }}</p>
-            <p>{{ current_user.data.get('hobbies', '') }}</p>
+
+            <p class="view-mode"><strong>Neighborhood:</strong> {{ current_user.data.get('neighborhood', '—') }}</p>
+            <div class="edit-mode" style="display:none;">
+                <label>Neighborhood:</label>
+                <input type="text" name="neighborhood" value="{{ current_user.data.get('neighborhood', '') }}" />
+            </div>
+
+            <p class="view-mode"><strong>Pronouns:</strong> {{ current_user.data.get('pronouns', '—') }}</p>
+            <div class="edit-mode" style="display:none;">
+                <label>Pronouns:</label>
+                <select name="pronouns">
+                    <option value="">Select...</option>
+                    <option value="he/him" {{ 'selected' if current_user.data.get('pronouns') == 'he/him' }}>He/Him</option>
+                    <option value="she/her" {{ 'selected' if current_user.data.get('pronouns') == 'she/her' }}>She/Her</option>
+                    <option value="they/them" {{ 'selected' if current_user.data.get('pronouns') == 'they/them' }}>They/Them</option>
+                    <option value="other" {{ 'selected' if current_user.data.get('pronouns') == 'other' }}>Other</option>
+                </select>
+            </div>
+
+            <p class="view-mode"><strong>Job/Student:</strong> {{ current_user.data.get('job', '—') }}</p>
+            <div class="edit-mode" style="display:none;">
+                <label>Job/Student:</label>
+                <input type="text" name="job" value="{{ current_user.data.get('job', '') }}" />
+            </div>
         </div>
 
         <div class="profile-section">
             <h3>Preferences</h3>
-            <p><strong>Drinking/Smoking:</strong> {{ current_user.data.drinking_smoking }}</p>
-            <p><strong>Dietary Restrictions:</strong> {{ current_user.data.dietary }}</p>
+            <p class="view-mode"><strong>Drinking/Smoking:</strong> {{ current_user.data.get('drinking_smoking', '—') }}</p>
+            <div class="edit-mode" style="display:none;">
+                <label>Drinking/Smoking:</label>
+                <input type="text" name="drinking_smoking" value="{{ current_user.data.get('drinking_smoking', '') }}" />
+            </div>
+
+            <p class="view-mode"><strong>Dietary Restrictions:</strong> {{ current_user.data.get('dietary', '—') }}</p>
+            <div class="edit-mode" style="display:none;">
+                <label>Dietary Restrictions:</label>
+                <input type="text" name="dietary" value="{{ current_user.data.get('dietary', '') }}" />
+            </div>
         </div>
 
         <div class="profile-section">
             <h3>Interests</h3>
-            <p>{{ current_user.data.interests }}</p>
+            <p class="view-mode">{{ current_user.data.get('interests', '—') }}</p>
+            <div class="edit-mode" style="display:none;">
+                <label>Interests:</label>
+                <textarea name="interests" rows="4">{{ current_user.data.get('interests', '') }}</textarea>
+            </div>
         </div>
 
         <div class="profile-section">
             <h3>Hobbies</h3>
-            <p>{{ current_user.data.hobbies }}</p>
+            <p class="view-mode">{{ current_user.data.get('hobbies', '—') }}</p>
+            <div class="edit-mode" style="display:none;">
+                <label>Hobbies:</label>
+                <textarea name="hobbies" rows="4">{{ current_user.data.get('hobbies', '') }}</textarea>
+            </div>
         </div>
     </div>
+
+    <div class="edit-mode" style="display:none; margin-top: 1.5rem;">
+        <button type="submit" class="btn" style="margin-top: 0;">Save Changes</button>
+        <button type="button" class="btn-outline-dark" style="margin-top: 0; margin-left: 0.75rem;" onclick="toggleEdit()">Cancel</button>
+    </div>
+    </form>
 </div>
+
+<script>
+    function toggleEdit() {
+        const editEls = document.querySelectorAll('.edit-mode');
+        const viewEls = document.querySelectorAll('.view-mode');
+        editEls.forEach(el => el.style.display = el.style.display === 'none' ? 'block' : 'none');
+        viewEls.forEach(el => el.style.display = el.style.display === 'none' ? 'block' : 'none');
+    }
+</script>
 {% endblock %}

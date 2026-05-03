@@ -129,7 +129,7 @@ def signup():
 
     error = validate_signup(data, users_collection)
     if error:
-        return render_template("signup.html", error=error)
+        return render_template("signup.html", error=error, data=data)
 
     existing_user = users_collection.find_one({"email": data["email"]})
     if existing_user:
@@ -206,9 +206,9 @@ def create_event_route():
 
     error = validate_event(data)
     if error:
-        return render_template("create_event.html", error=error)
+        return render_template("create_event.html", error=error, data=data)
 
-    event = create_event(data, current_user.id)
+    event = create_event(data, ObjectId(current_user.id))
 
     result = events_collection.insert_one(event)
 
@@ -382,15 +382,25 @@ def home():
 @app.route("/events/<event_id>")
 @login_required
 def view_event(event_id):
-
     event = events_collection.find_one({"_id": ObjectId(event_id)})
-
     if not event:
         return "Event not found", 404
 
     host = users_collection.find_one({"_id": event["host_id"]})
 
-    return render_template("event.html", event=event, host=host)
+    requesters = []
+    for req_id in event.get("join_requests", []):
+        user = users_collection.find_one({"_id": req_id})
+        if user:
+            requesters.append(user)
+
+    return render_template(
+        "event.html",
+        event=event,
+        host=host,
+        requesters=requesters,
+        is_host=str(event["host_id"]) == current_user.id,
+    )
 
 
 @app.route("/events/<event_id>/apply", methods=["POST"])
@@ -429,7 +439,11 @@ def apply_event(event_id):
     room_id = "_".join(sorted([user_id, host_id]))
 
     # send automated message
-    msg = create_message(room_id, user_id, "Hi! I would like to join your event.")
+    msg_text = (
+        f"Hi! I would like to join your event: '{event.get('title', 'Untitled')}'."
+        f" View event: /events/{event_id}"
+    )
+    msg = create_message(room_id, user_id, msg_text)
 
     save_message(messages_collection, msg)
 
@@ -517,6 +531,25 @@ def profile():
     return render_template("profile.html")
 
 
+@app.route("/my-events")
+@login_required
+def my_events():
+    """Show events the user is hosting and attending."""
+    user = users_collection.find_one({"_id": ObjectId(current_user.id)})
+
+    hosted = list(events_collection.find({"host_id": ObjectId(current_user.id)}))
+
+    joined_ids = user.get("joined_events", [])
+    attending = list(events_collection.find({"_id": {"$in": joined_ids}}))
+
+    pending_ids = user.get("pending_events", [])
+    pending = list(events_collection.find({"_id": {"$in": pending_ids}}))
+
+    return render_template(
+        "my_events.html", hosted=hosted, attending=attending, pending=pending
+    )
+
+
 @app.route("/profile/edit", methods=["GET", "POST"])
 @login_required
 def edit_profile():
@@ -532,12 +565,10 @@ def edit_profile():
 
     data = request.form.to_dict()
 
-    # multi-select fields
     data["dietary_restrictions"] = request.form.getlist("dietary_restrictions")
     data["hobbies"] = request.form.getlist("hobbies")
     data["interests"] = request.form.getlist("interests")
 
-    # update only allowed fields
     updated_user = update_user(data)
 
     users_collection.update_one(

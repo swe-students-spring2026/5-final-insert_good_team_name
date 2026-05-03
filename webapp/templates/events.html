@@ -11,12 +11,13 @@
         {% for event in events %}
             <li class="event-card">
                 <h3>{{ event.title }}</h3>
-                <p><strong>Date:</strong> {{ event.date }} at {{ event.time }}</p>
+                <p><strong>Date:</strong> {{ event.datetime }}</p>
+                <p><strong>Location:</strong> {{ event.get('location', '') }}</p>
                 <p><strong>Capacity:</strong> {{ event.capacity }} guests</p>
                 {% if event.description %}
                     <p>{{ event.description }}</p>
                 {% endif %}
-                <a href="/events/{{ event._id }}">View Details</a>
+                <a href="/events/{{ event._id }}" style="color: #fff;">View Details</a>
             </li>
         {% endfor %}
         </ul>
