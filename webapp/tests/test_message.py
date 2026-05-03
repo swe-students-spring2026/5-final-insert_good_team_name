@@ -2,6 +2,8 @@ from utils.message import create_message, save_message, get_messages
 
 
 class FakeCollection:
+    """mock db collection for testing"""
+
     def __init__(self):
         self.data = []
 

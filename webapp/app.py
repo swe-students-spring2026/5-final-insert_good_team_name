@@ -1,13 +1,11 @@
 """DinnerMeet Flask application."""
 
 import os
-import random
 import logging
-from datetime import datetime
 
 
 from bson import ObjectId
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import (
     LoginManager,
     UserMixin,
@@ -27,14 +25,12 @@ from utils.message import create_message, save_message, get_messages
 from db import users_collection, events_collection, messages_collection
 
 
-
 # Placeholder matching: return first eligible event.
 def get_best_event_match(_user, candidate_events):
     if not candidate_events:
         return None
 
     return candidate_events[0]
-
 
 
 load_dotenv()
@@ -73,7 +69,7 @@ socketIO = SocketIO(
 )
 
 
-
+# pylint: disable=too-few-public-methods
 class User(UserMixin):
     """Flask-Login wrapper for MongoDB user documents."""
 
@@ -163,7 +159,8 @@ def connect():
     if not current_user.is_authenticated:
         return False
 
-    logger.info(f"{current_user.id} connected")
+    logger.info("%s connected", current_user.id)
+    return True
 
 
 @socketIO.on("join_room")
@@ -219,7 +216,6 @@ def create_event_route():
 
     flash("Event created successfully.", "success")
     return redirect(url_for("events_page"))
-
 
 
 @app.route("/messages")
@@ -286,10 +282,9 @@ def chat(username):
         return redirect(url_for("chat", username=username))
 
     # get = load messages
-    messages = get_messages(messages_collection, room_id)
+    chat_messages = get_messages(messages_collection, room_id)
 
-    return render_template("chat.html", messages=messages, otherUsername=username)
-
+    return render_template("chat.html", messages=chat_messages, otherUsername=username)
 
 
 @app.route("/home")
@@ -315,7 +310,6 @@ def home():
     best_event = get_best_event_match(user, candidate_events)
 
     return render_template("home.html", event=best_event)
-
 
 
 @app.route("/events/<event_id>")
