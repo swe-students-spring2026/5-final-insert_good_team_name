@@ -125,7 +125,8 @@ def signup():
     if request.method == "GET":
         return render_template("signup.html")
 
-    data = request.form
+    data = request.form.to_dict()
+    data["interests"] = request.form.getlist("interests")
 
     error = validate_signup(data, users_collection)
     if error:
@@ -366,17 +367,16 @@ def home():
         events_collection.find(
             {
                 "event_open": True,
-                "host_id": {"$ne": current_user.id},
+                "host_id": {"$ne": ObjectId(current_user.id)},
                 "_id": {"$nin": rejected_events + joined_events + pending_events},
             }
         )
     )
 
-    # Placeholder until matching-service scoring is integrated.
+    #best_event, _ = get_best_event(user, candidate_events, users_collection)
     best_event = get_best_event_match(user, candidate_events)
 
     return render_template("home.html", event=best_event)
-
 
 # For users
 @app.route("/events/<event_id>")
@@ -394,11 +394,19 @@ def view_event(event_id):
         if user:
             requesters.append(user)
 
+    attendees = []
+    for att_id in event.get("attendees", []):
+        if str(att_id) != current_user.id:
+            user = users_collection.find_one({"_id": att_id})
+            if user:
+                attendees.append(user)
+
     return render_template(
         "event.html",
         event=event,
         host=host,
         requesters=requesters,
+        attendees=attendees,
         is_host=str(event["host_id"]) == current_user.id,
     )
 
@@ -566,8 +574,8 @@ def edit_profile():
     data = request.form.to_dict()
 
     data["dietary_restrictions"] = request.form.getlist("dietary_restrictions")
-    data["hobbies"] = request.form.getlist("hobbies")
     data["interests"] = request.form.getlist("interests")
+    data["hobbies"] = request.form.get("hobbies", "")
 
     updated_user = update_user(data)
 
@@ -578,6 +586,25 @@ def edit_profile():
 
     flash("Profile updated successfully.", "success")
     return redirect(url_for("profile"))
+
+
+@app.route("/events/<event_id>/delete", methods=["POST"])
+@login_required
+def delete_event(event_id):
+    """Host deletes an event."""
+    event = events_collection.find_one({"_id": ObjectId(event_id)})
+    if not event or str(event["host_id"]) != current_user.id:
+        return redirect(url_for("my_events"))
+
+    events_collection.delete_one({"_id": ObjectId(event_id)})
+
+    users_collection.update_one(
+        {"_id": ObjectId(current_user.id)},
+        {"$pull": {"created_events": ObjectId(event_id)}},
+    )
+
+    flash("Event deleted.", "success")
+    return redirect(url_for("my_events"))
 
 
 if __name__ == "__main__":
