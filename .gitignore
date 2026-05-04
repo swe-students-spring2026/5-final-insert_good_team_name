@@ -150,3 +150,7 @@ cython_debug/
 
 # pylint cache
 .pylint.d/
+
+# local deployment SSH keys
+deploy_key_do
+deploy_key_do.pub

@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to DigitalOcean droplet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DO_HOST }}
+          username: ${{ secrets.DO_USER }}
+          key: ${{ secrets.DO_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            cd /opt/5-final-insert_good_team_name
+            git fetch --all
+            git reset --hard origin/main
+            if command -v docker-compose >/dev/null 2>&1; then
+              docker-compose up -d --build
+              docker-compose ps
+            else
+              docker compose up -d --build
+              docker compose ps
+            fi
+            docker image prune -f
