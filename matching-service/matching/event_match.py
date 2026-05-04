@@ -29,9 +29,12 @@ def compute_match_score(user, event, user_lookup) -> float:
 
     # Event Score
 
-    interest_event = list_similarity(user["algorithm_tags"], event["algorithm_tags"])
+    interest_event = list_similarity(
+        user.get("algorithm_tags", []), event.get("algorithm_tags", [])
+    )
     dist_score = distance_score(
-        resolve_location(user["neighborhood"]), resolve_location(event["location"])
+        resolve_location(user.get("neighborhood")),
+        resolve_location(event.get("location")),
     )
 
     event_score = 0.7 * interest_event + 0.3 * dist_score
@@ -48,12 +51,16 @@ def compute_match_score(user, event, user_lookup) -> float:
     else:
 
         interest_group = sum(
-            list_similarity(user["algorithm_tags"], m["algorithm_tags"])
+            list_similarity(user.get("algorithm_tags", []), m.get("algorithm_tags", []))
             for m in members
         ) / len(members)
 
-        group_ages = [m["age"] for m in members]
-        age_comp = age_score(user["age"], group_ages)
+        group_ages = [m["age"] for m in members if m.get("age") is not None]
+        user_age = user.get("age")
+        if not group_ages or user_age is None:
+            age_comp = 0.5
+        else:
+            age_comp = age_score(user_age, group_ages)
 
     group_score = 0.7 * interest_group + 0.3 * age_comp
 
@@ -74,7 +81,7 @@ def compute_match_score(user, event, user_lookup) -> float:
 
     # Drinks multiplier
 
-    if "drinks" in event["algorithm_tags"]:
+    if "drinks" in event.get("algorithm_tags", []):
         drinks_multiplier = get_drinks_multiplier(user)
     else:
         drinks_multiplier = 1.0
@@ -196,16 +203,14 @@ def get_drinks_multiplier(user) -> float:
     Returns a multiplier based on if user legally
     can and chooses to drink
     """
-
-    # If user can't drink
-    if user["age"] < 21:
+    age = user.get("age")
+    if age is None or age < 21:
         return 0.0
 
-    # If user does drink
-    if user["drinking_smoking"]["drinks"]:
+    ds = user.get("drinking_smoking") or {}
+    if ds.get("drinks", True):
         return 1.0
 
-    # User chooses not to drink
     return 0.4
 
 
