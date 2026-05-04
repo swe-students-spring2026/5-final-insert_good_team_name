@@ -50,8 +50,9 @@ def compute_match_score(user, event, user_lookup) -> float:
 
     # Size Score
 
-    ranges = user.get("preferred_group_ranges", [(3, 10)])
-    size_score = calculate_size_score(event.get("capacity", 6), ranges)
+    size_score = calculate_size_score(
+        event.get("capacity", 6), user.get("preferred_group_ranges", [(3, 10)])
+    )
 
     # Dietary multiplier
 
@@ -62,9 +63,18 @@ def compute_match_score(user, event, user_lookup) -> float:
     else:
         dietary_multiplier = 1.0
 
+    # Drinks multiplier
+
+    if "drinks" in event["algorithm_tags"]:
+        drinks_multiplier = get_drinks_multiplier(user)
+    else:
+        drinks_multiplier = 1.0
+
     return (
-        0.3 * event_score + 0.5 * group_score + 0.2 * size_score
-    ) * dietary_multiplier
+        (0.3 * event_score + 0.5 * group_score + 0.2 * size_score)
+        * dietary_multiplier
+        * drinks_multiplier
+    )
 
 
 def list_similarity(a: List[str], b: List[str]) -> float:
@@ -170,3 +180,21 @@ def dietary_score(user_restrictions, event_dining_tags) -> float:
     penalty_min = 0.5
 
     return penalty_min + (1 - penalty_min) * coverage
+
+
+def get_drinks_multiplier(user) -> float:
+    """
+    Returns a multiplier based on if user legally
+    can and chooses to drink
+    """
+
+    # If user can't drink
+    if user["age"] < 21:
+        return 0.0
+
+    # If user does drink
+    if user["drinking_smoking"]["drinks"]:
+        return 1.0
+
+    # User chooses not to drink
+    return 0.4
