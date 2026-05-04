@@ -38,8 +38,8 @@ def update_user(data):
         "interests": data.get("interests", []),
         "algorithm_tags": transform_preferences_to_tags(data.get("interests", [])),
         "drinking_smoking": {
-            "drinks": data.get("drinks") == "yes",
-            "smokes": data.get("smokes") == "yes",
+            "drinks": data.get("drinks") in ("yes", "on", True),
+            "smokes": data.get("smokes") in ("yes", "on", True),
         },
         "updated_at": datetime.utcnow(),
     }
