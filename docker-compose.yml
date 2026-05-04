@@ -7,7 +7,7 @@ services:
     environment:
       PORT: "5000"
       SECRET_KEY: ${SECRET_KEY:-dev}
-      MATCHING_SERVICE_URL: http://matching-service:5001
+      MATCHING_SERVICE_URL: ${MATCHING_SERVICE_URL:-http://matching-service:5001}
       MONGO_URI: ${MONGO_URI:-mongodb+srv://dinnermeet_admin:<db_password>@dinnermeet.vy62fon.mongodb.net/?appName=DinnerMeet}
     depends_on:
       - matching-service
