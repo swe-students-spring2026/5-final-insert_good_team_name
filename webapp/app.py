@@ -187,13 +187,19 @@ def handle_send_message(data):
     msg = create_message(room, current_user.id, text)
     save_message(messages_collection, msg)
 
+    timestamp = msg["timestamp"]
+    if hasattr(timestamp, "isoformat"):
+        timestamp = timestamp.isoformat()
+    else:
+        timestamp = str(timestamp)
+
     emit(
         "receive_message",
         {
             "room_id": room,
             "sender": current_user.id,
             "message": text,
-            "timestamp": msg["timestamp"].isoformat(),
+            "timestamp": timestamp,
         },
         to=room,
     )
@@ -298,9 +304,16 @@ def messages():
         other_id = user1 if user2 == user_id else user2
 
         # Look up other user's name
-        other_user = users_collection.find_one({"_id": ObjectId(other_id)})
+        try:
+            other_user = users_collection.find_one({"_id": ObjectId(other_id)})
+        except Exception:  # pylint: disable=broad-exception-caught
+            other_user = None
+
         if other_user:
-            other_name = f"{other_user.get('first_name', '')} {other_user.get('last_initial', '')}."
+            other_name = (
+                f"{other_user.get('first_name', '')} "
+                f"{other_user.get('last_initial', '')}."
+            )
         else:
             other_name = other_id
 

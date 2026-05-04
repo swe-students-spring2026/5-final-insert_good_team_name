@@ -65,6 +65,7 @@ def test_chat_page(client, monkeypatch):
 
     monkeypatch.setattr(app, "messages_collection", FakeCollection(fake_messages))
     monkeypatch.setattr(app, "events_collection", FakeCollection([]))
+    monkeypatch.setattr(app, "users_collection", FakeCollection([]))
 
     monkeypatch.setattr(
         "flask_login.utils._get_user",
