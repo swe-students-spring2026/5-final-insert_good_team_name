@@ -23,7 +23,6 @@
                     <form method="POST" action="/events/{{ event._id }}/edit">
                         <label>Title:</label>
                         <input type="text" name="title" value="{{ event.title }}" required />
-                        <label>Date & Time:</label>
                         <input type="datetime-local" name="datetime" value="{{ event.datetime }}" required />
                         <label>Capacity:</label>
                         <input type="number" name="capacity" value="{{ event.capacity }}" min="2" required />
@@ -86,7 +85,7 @@
                             <option value="Manhattan Valley" {{ 'selected' if event.location == 'Manhattan Valley' }}>Manhattan Valley</option>
                         </select>
                         <label>Description:</label>
-                        <input type="text" name="description" value="{{ event.description }}" />
+                        <input type="text" name="description" value="{{ event.description }}" required/>
                         <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
                             <button type="submit" class="btn" style="margin-top: 0;">Save</button>
                             <button type="button" class="btn-outline-dark" style="margin-top: 0;" onclick="toggleEventEdit('{{ event._id }}')">Cancel</button>

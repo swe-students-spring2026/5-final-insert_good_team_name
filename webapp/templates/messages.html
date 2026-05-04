@@ -9,15 +9,15 @@
         <ul class="conversation-list">
         {% for convo in conversations %}
             <li class="conversation-card">
-                <a href="{{ url_for('chat', username=convo.other_user) }}">
-                    <span class="convo-name">{{ convo.other_user }}</span>
+                <a href="{{ url_for('chat', user_id=convo.other_user) }}">
+                    <span class="convo-name">{{ convo.other_name }}</span>
                     <span class="convo-preview">{{ convo.last_message }}</span>
                 </a>
             </li>
         {% endfor %}
         </ul>
     {% else %}
-        <p>No messages yet. Request an invite to an event to start a conversation!</p>
+        <p>No messages yet.</p>
     {% endif %}
 </div>
 {% endblock %}

@@ -37,9 +37,9 @@
                 <ul class="event-list">
                 {% for requester in requesters %}
                     <li class="event-card" style="display: flex; justify-content: space-between; align-items: center;">
-                        <p style="margin-top: 0;">
-                            {{ requester.get('first_name', '') }} {{ requester.get('last_name', '')[:1] }}.
-                        </p>
+                        <a href="/users/{{ requester._id }}" style="font-weight: 600; color: #2c2c2c;">
+                            {{ requester.get('first_name', '') }} {{ requester.get('last_initial', '') }}.
+                        </a>
                         <div style="display: flex; gap: 0.75rem;">
                             <form method="POST" action="/events/{{ event._id }}/accept/{{ requester._id }}">
                                 <button type="submit" class="btn-join" style="margin-top: 0;">Accept</button>
@@ -62,9 +62,9 @@
                 <ul class="event-list">
                 {% for attendee in attendees %}
                     <li class="event-card">
-                        <p style="margin-top: 0;">
-                            {{ attendee.get('first_name', '') }} {{ attendee.get('last_name', '')[:1] }}.
-                        </p>
+                        <a href="/users/{{ attendee._id }}" style="font-weight: 600; color: #2c2c2c;">
+                            {{ attendee.get('first_name', '') }} {{ attendee.get('last_initial', '') }}.
+                        </a>
                     </li>
                 {% endfor %}
                 </ul>

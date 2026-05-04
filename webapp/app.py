@@ -2,6 +2,7 @@
 
 import os
 import logging
+import requests as http_requests
 
 
 from bson import ObjectId
@@ -92,9 +93,8 @@ def load_user(user_id):
 
 @app.route("/")
 def index():
-    """Render app landing page for anonymous users."""
     if current_user.is_authenticated:
-        return render_template("home.html")
+        return redirect(url_for("home"))
     return render_template("landing.html")
 
 
@@ -127,6 +127,7 @@ def signup():
 
     data = request.form.to_dict()
     data["interests"] = request.form.getlist("interests")
+    data["dietary_restrictions"] = request.form.getlist("dietary_restrictions")
 
     error = validate_signup(data, users_collection)
     if error:
@@ -185,7 +186,13 @@ def handle_send_message(data):
 
     msg = create_message(room, current_user.id, text)
     save_message(messages_collection, msg)
-    emit("receive_message", msg, to=room)
+
+    emit("receive_message", {
+        "room_id": room,
+        "sender": current_user.id,
+        "message": text,
+        "timestamp": msg["timestamp"].isoformat(),
+    }, to=room)
 
 
 @app.route("/events")
@@ -266,7 +273,6 @@ def edit_event(event_id):
 @login_required
 def messages():
     """Show all message conversations."""
-
     user_id = current_user.id
 
     all_messages = list(
@@ -284,19 +290,24 @@ def messages():
 
     for msg in all_messages:
         room = msg["room_id"]
-
-        # find the oppose user
         user1, user2 = room.split("_", 1)
-        other = user1 if user2 == user_id else user2
+        other_id = user1 if user2 == user_id else user2
 
-        # just keep the newest message
+        # Look up other user's name
+        other_user = users_collection.find_one({"_id": ObjectId(other_id)})
+        if other_user:
+            other_name = f"{other_user.get('first_name', '')} {other_user.get('last_initial', '')}."
+        else:
+            other_name = other_id
+
         if (
             room not in conversations
             or msg["timestamp"] > conversations[room]["timestamp"]
         ):
             conversations[room] = {
                 "_id": room,
-                "other_user": other,
+                "other_user": other_id,
+                "other_name": other_name,
                 "last_message": msg["message"],
                 "timestamp": msg["timestamp"],
             }
@@ -322,6 +333,15 @@ def chat(user_id):
 
     host_obj_id = ObjectId(user_id)
     current_obj_id = ObjectId(current_user.id)
+
+    other_user = users_collection.find_one({"_id": host_obj_id})
+    if other_user:
+        other_name = (
+            f"{other_user.get('first_name', '')} "
+            f"{other_user.get('last_initial', '')}."
+        )
+    else:
+        other_name = user_id
 
     shared_events = list(
         events_collection.find(
@@ -350,6 +370,7 @@ def chat(user_id):
         "chat.html",
         messages=chat_messages,
         otherUsername=user_id,
+        other_name=other_name,
         shared_events=shared_events,
     )
 
@@ -373,11 +394,40 @@ def home():
         )
     )
 
-    # best_event, _ = get_best_event(user, candidate_events, users_collection)
-    best_event = get_best_event_match(user, candidate_events)
+    user_payload = {
+        "age": user.get("age"),
+        "algorithm_tags": user.get("algorithm_tags", []),
+        "neighborhood": user.get("neighborhood", ""),
+        "preferred_group_ranges": user.get("preferred_group_ranges", [(3, 10)]),
+        "dietary_restrictions": user.get("dietary_restrictions", []),
+        "drinking_smoking": user.get("drinking_smoking", {}),
+    }
+
+    events_payload = []
+    for e in candidate_events:
+        event_dict = dict(e)
+        event_dict["_id"] = str(event_dict["_id"])
+        if "host_id" in event_dict:
+            event_dict["host_id"] = str(event_dict["host_id"])
+        event_dict["attendees"] = [str(a) for a in event_dict.get("attendees", [])]
+        events_payload.append(event_dict)
+
+    best_event = None
+    try:
+        matching_url = os.environ.get("MATCHING_SERVICE_URL", "http://matching-service:5001")
+        response = http_requests.post(
+            f"{matching_url}/match",
+            json={"user": user_payload, "events": events_payload},
+            timeout=5,
+        )
+        if response.ok:
+            data = response.json()
+            best_event = data.get("best_event")
+    except Exception:
+        # Fallback to first event if matching service unavailable
+        best_event = events_payload[0] if events_payload else None
 
     return render_template("home.html", event=best_event)
-
 
 # For users
 @app.route("/events/<event_id>")
@@ -448,10 +498,7 @@ def apply_event(event_id):
     room_id = "_".join(sorted([user_id, host_id]))
 
     # send automated message
-    msg_text = (
-        f"Hi! I would like to join your event: '{event.get('title', 'Untitled')}'."
-        f" View event: /events/{event_id}"
-    )
+    msg_text = f"Hi! I would like to join your event: '{event.get('title', 'Untitled')}'."
     msg = create_message(room_id, user_id, msg_text)
 
     save_message(messages_collection, msg)
@@ -606,6 +653,16 @@ def delete_event(event_id):
 
     flash("Event deleted.", "success")
     return redirect(url_for("my_events"))
+
+
+@app.route("/users/<user_id>")
+@login_required
+def view_user(user_id):
+    """View another user's profile."""
+    user = users_collection.find_one({"_id": ObjectId(user_id)})
+    if not user:
+        return "User not found", 404
+    return render_template("view_user.html", user=user)
 
 
 if __name__ == "__main__":
