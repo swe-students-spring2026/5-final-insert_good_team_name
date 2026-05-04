@@ -3,15 +3,13 @@
 
 {% block content %}
 <div class="my-events-container">
-    <h1>My Events</h1>
-
     <section>
         <h2>Hosting</h2>
         {% if hosted %}
             <ul class="event-list">
             {% for event in hosted %}
             <li class="event-card">
-                <div class="view-mode">
+                <div class="view-mode" id="view-{{ event._id }}">
                     <h3>{{ event.title }}</h3>
                     <p class="event-meta">{{ event.datetime }} · {{ event.location }}</p>
                     <p>{{ event.description }}</p>
@@ -29,14 +27,74 @@
                         <input type="datetime-local" name="datetime" value="{{ event.datetime }}" required />
                         <label>Capacity:</label>
                         <input type="number" name="capacity" value="{{ event.capacity }}" min="2" required />
-                        <label>Location:</label>
-                        <input type="text" name="location" value="{{ event.location }}" required />
+                        <label for="location" class="required">Location:</label>
+                        <select id="location" name="location" required>
+                            <option value="">Select a neighborhood...</option>
+                            <option value="Battery Park City" {{ 'selected' if event.location == 'Battery Park City' }}>Battery Park City</option>
+                            <option value="Chelsea" {{ 'selected' if event.location == 'Chelsea' }}>Chelsea</option>
+                            <option value="West Chelsea" {{ 'selected' if event.location == 'West Chelsea' }}>West Chelsea</option>
+                            <option value="Chinatown" {{ 'selected' if event.location == 'Chinatown' }}>Chinatown</option>
+                            <option value="Civic Center" {{ 'selected' if event.location == 'Civic Center' }}>Civic Center</option>
+                            <option value="East Village" {{ 'selected' if event.location == 'East Village' }}>East Village</option>
+                            <option value="Financial District" {{ 'selected' if event.location == 'Financial District' }}>Financial District</option>
+                            <option value="Fulton/Seaport" {{ 'selected' if event.location == 'Fulton/Seaport' }}>Fulton/Seaport</option>
+                            <option value="Flatiron" {{ 'selected' if event.location == 'Flatiron' }}>Flatiron</option>
+                            <option value="NoMad" {{ 'selected' if event.location == 'NoMad' }}>NoMad</option>
+                            <option value="Gramercy Park" {{ 'selected' if event.location == 'Gramercy Park' }}>Gramercy Park</option>
+                            <option value="Greenwich Village" {{ 'selected' if event.location == 'Greenwich Village' }}>Greenwich Village</option>
+                            <option value="Noho" {{ 'selected' if event.location == 'Noho' }}>Noho</option>
+                            <option value="Little Italy" {{ 'selected' if event.location == 'Little Italy' }}>Little Italy</option>
+                            <option value="Lower East Side" {{ 'selected' if event.location == 'Lower East Side' }}>Lower East Side</option>
+                            <option value="Two Bridges" {{ 'selected' if event.location == 'Two Bridges' }}>Two Bridges</option>
+                            <option value="Nolita" {{ 'selected' if event.location == 'Nolita' }}>Nolita</option>
+                            <option value="Soho" {{ 'selected' if event.location == 'Soho' }}>Soho</option>
+                            <option value="Hudson Square" {{ 'selected' if event.location == 'Hudson Square' }}>Hudson Square</option>
+                            <option value="Stuyvesant Town/PCV" {{ 'selected' if event.location == 'Stuyvesant Town/PCV' }}>Stuyvesant Town/PCV</option>
+                            <option value="Tribeca" {{ 'selected' if event.location == 'Tribeca' }}>Tribeca</option>
+                            <option value="West Village" {{ 'selected' if event.location == 'West Village' }}>West Village</option>
+                            <option value="Central Park South" {{ 'selected' if event.location == 'Central Park South' }}>Central Park South</option>
+                            <option value="Midtown" {{ 'selected' if event.location == 'Midtown' }}>Midtown</option>
+                            <option value="Midtown East" {{ 'selected' if event.location == 'Midtown East' }}>Midtown East</option>
+                            <option value="Kips Bay" {{ 'selected' if event.location == 'Kips Bay' }}>Kips Bay</option>
+                            <option value="Murray Hill" {{ 'selected' if event.location == 'Murray Hill' }}>Murray Hill</option>
+                            <option value="Sutton Place" {{ 'selected' if event.location == 'Sutton Place' }}>Sutton Place</option>
+                            <option value="Turtle Bay" {{ 'selected' if event.location == 'Turtle Bay' }}>Turtle Bay</option>
+                            <option value="Beekman" {{ 'selected' if event.location == 'Beekman' }}>Beekman</option>
+                            <option value="Midtown South" {{ 'selected' if event.location == 'Midtown South' }}>Midtown South</option>
+                            <option value="Midtown West" {{ 'selected' if event.location == 'Midtown West' }}>Midtown West</option>
+                            <option value="Hell's Kitchen" {{ 'selected' if event.location == "Hell's Kitchen" }}>Hell's Kitchen</option>
+                            <option value="Hudson Yards" {{ 'selected' if event.location == 'Hudson Yards' }}>Hudson Yards</option>
+                            <option value="Upper East Side" {{ 'selected' if event.location == 'Upper East Side' }}>Upper East Side</option>
+                            <option value="Carnegie Hill" {{ 'selected' if event.location == 'Carnegie Hill' }}>Carnegie Hill</option>
+                            <option value="Lenox Hill" {{ 'selected' if event.location == 'Lenox Hill' }}>Lenox Hill</option>
+                            <option value="Upper Carnegie Hill" {{ 'selected' if event.location == 'Upper Carnegie Hill' }}>Upper Carnegie Hill</option>
+                            <option value="Yorkville" {{ 'selected' if event.location == 'Yorkville' }}>Yorkville</option>
+                            <option value="Central Harlem" {{ 'selected' if event.location == 'Central Harlem' }}>Central Harlem</option>
+                            <option value="South Harlem" {{ 'selected' if event.location == 'South Harlem' }}>South Harlem</option>
+                            <option value="East Harlem" {{ 'selected' if event.location == 'East Harlem' }}>East Harlem</option>
+                            <option value="Hamilton Heights" {{ 'selected' if event.location == 'Hamilton Heights' }}>Hamilton Heights</option>
+                            <option value="Inwood" {{ 'selected' if event.location == 'Inwood' }}>Inwood</option>
+                            <option value="Marble Hill" {{ 'selected' if event.location == 'Marble Hill' }}>Marble Hill</option>
+                            <option value="Morningside Heights" {{ 'selected' if event.location == 'Morningside Heights' }}>Morningside Heights</option>
+                            <option value="Washington Heights" {{ 'selected' if event.location == 'Washington Heights' }}>Washington Heights</option>
+                            <option value="Fort George" {{ 'selected' if event.location == 'Fort George' }}>Fort George</option>
+                            <option value="Hudson Heights" {{ 'selected' if event.location == 'Hudson Heights' }}>Hudson Heights</option>
+                            <option value="West Harlem" {{ 'selected' if event.location == 'West Harlem' }}>West Harlem</option>
+                            <option value="Manhattanville" {{ 'selected' if event.location == 'Manhattanville' }}>Manhattanville</option>
+                            <option value="Upper West Side" {{ 'selected' if event.location == 'Upper West Side' }}>Upper West Side</option>
+                            <option value="Lincoln Square" {{ 'selected' if event.location == 'Lincoln Square' }}>Lincoln Square</option>
+                            <option value="Manhattan Valley" {{ 'selected' if event.location == 'Manhattan Valley' }}>Manhattan Valley</option>
+                        </select>
                         <label>Description:</label>
                         <input type="text" name="description" value="{{ event.description }}" />
                         <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
                             <button type="submit" class="btn" style="margin-top: 0;">Save</button>
                             <button type="button" class="btn-outline-dark" style="margin-top: 0;" onclick="toggleEventEdit('{{ event._id }}')">Cancel</button>
                         </div>
+                    </form>
+
+                    <form method="POST" action="/events/{{ event._id }}/delete" onsubmit="return confirm('Are you sure you want to delete this event?')">
+                        <button type="submit" class="btn" style="margin-top: 0.5rem; background: #c0392b;">Delete Event</button>
                     </form>
                 </div>
             </li>

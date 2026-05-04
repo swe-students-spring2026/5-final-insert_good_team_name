@@ -9,6 +9,7 @@
     <p class="event-meta" style="margin-top: 0.5rem;">
         <strong>Capacity:</strong> {{ event.capacity }} guests
     </p>
+
     {% if host %}
     <p class="event-meta">
         <strong>Host:</strong> {{ host.get('first_name', '') }} {{ host.get('last_name', '')[:1] }}.
@@ -16,11 +17,15 @@
     {% endif %}
 
     {% if event.dining %}
-    <p class="event-meta"><strong>Dining Event</strong></p>
+    <p class="event-meta" style="color: #e8c97e;">🍽 Dining Event</p>
     {% endif %}
 
     {% if event.tags %}
-    <p class="event-meta"><strong>Tags:</strong> {{ event.tags | join(', ') }}</p>
+    <div class="selected-tags" style="margin-top: 0.75rem;">
+        {% for tag in event.tags %}
+            <div class="tag-chip" style="pointer-events: none;">{{ tag | replace('_', ' ') | title }}</div>
+        {% endfor %}
+    </div>
     {% endif %}
 
     {% if is_host %}
@@ -53,18 +58,18 @@
 
         <div style="margin-top: 2rem;">
             <h3>Attendees</h3>
-            {% if event.attendees and event.attendees | length > 1 %}
+            {% if attendees %}
                 <ul class="event-list">
-                {% for attendee_id in event.attendees %}
-                    {% if str(attendee_id) != current_user.id %}
-                        <li class="event-card">
-                            <p style="margin-top: 0;">{{ str(attendee_id) }}</p>
-                        </li>
-                    {% endif %}
+                {% for attendee in attendees %}
+                    <li class="event-card">
+                        <p style="margin-top: 0;">
+                            {{ attendee.get('first_name', '') }} {{ attendee.get('last_name', '')[:1] }}.
+                        </p>
+                    </li>
                 {% endfor %}
                 </ul>
             {% else %}
-                <p>No attendees yet.</p>
+                <p>No other attendees yet.</p>
             {% endif %}
         </div>
 

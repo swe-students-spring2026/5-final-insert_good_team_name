@@ -4,7 +4,6 @@ from utils.tag_transformer import transform_preferences_to_tags
 
 
 def create_user(data):
-    interests = data.get("interests", [])
     return {
         "email": data["email"],
         "password_hash": generate_password_hash(data["password"]),
@@ -14,13 +13,13 @@ def create_user(data):
         "neighborhood": data["neighborhood"],
         "pronouns": data.get("pronouns"),
         "drinking_smoking": {
-            "drinks": bool(data.get("drinks", False)),
-            "smokes": bool(data.get("smokes", False)),
+            "drinks": data.get("drinks") in ("yes", "on", True),
+            "smokes": data.get("smokes") in ("yes", "on", True),
         },
         "dietary_restrictions": data.get("dietary_restrictions", []),
-        "hobbies": data.get("hobbies", []),
-        "interests": interests,
-        "algorithm_tags": transform_preferences_to_tags(interests),
+        "hobbies": data.get("hobbies", ""),
+        "interests": data.get("interests", []),
+        "algorithm_tags": transform_preferences_to_tags(data.get("interests", [])),
         "created_events": [],
         "joined_events": [],
         "rejected_events": [],
@@ -31,17 +30,16 @@ def create_user(data):
 
 
 def update_user(data):
-    interests = data.get("interests", [])
     return {
         "neighborhood": data["neighborhood"],
         "pronouns": data.get("pronouns", ""),
         "dietary_restrictions": data.get("dietary_restrictions", []),
-        "hobbies": data.get("hobbies", []),
+        "hobbies": data.get("hobbies", ""),
         "interests": data.get("interests", []),
-        "algorithm_tags": transform_preferences_to_tags(interests),
+        "algorithm_tags": transform_preferences_to_tags(data.get("interests", [])),
         "drinking_smoking": {
-            "drinks": bool(data.get("drinks", False)),
-            "smokes": bool(data.get("smokes", False)),
+            "drinks": data.get("drinks") in ("yes", "on", True),
+            "smokes": data.get("smokes") in ("yes", "on", True),
         },
         "updated_at": datetime.utcnow(),
     }
