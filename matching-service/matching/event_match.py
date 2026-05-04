@@ -50,8 +50,9 @@ def compute_match_score(user, event, user_lookup) -> float:
 
     # Size Score
 
-    ranges = user.get("preferred_group_ranges", [(3, 10)])
-    size_score = calculate_size_score(event.get("capacity", 6), ranges)
+    size_score = calculate_size_score(
+        event.get("capacity", 6), user.get("preferred_group_ranges", [(3, 10)])
+    )
 
     # Dietary multiplier
 

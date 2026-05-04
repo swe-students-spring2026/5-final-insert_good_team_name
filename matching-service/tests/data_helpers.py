@@ -3,7 +3,9 @@
 
 # pylint disabled here since this is just a helper for tests
 # pylint: disable=too-many-arguments
-def make_user(age, algorithm_tags, loc=(0, 0), ranges=None, dietary=None, drinks=True):
+def make_user(
+    age, algorithm_tags, loc=(0, 0), *, ranges=None, dietary=None, drinks=True
+):
     return {
         "age": age,
         "algorithm_tags": algorithm_tags,
