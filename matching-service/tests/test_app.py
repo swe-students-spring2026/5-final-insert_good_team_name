@@ -1,10 +1,11 @@
-import json
 from bson import ObjectId
 
 from app import app
 
 
 class FakeUsersCollection:
+    """Fake collection to be used for testing"""
+
     def __init__(self, users):
         self.users = users
 

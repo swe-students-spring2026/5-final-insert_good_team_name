@@ -17,11 +17,8 @@ def mongo_user_lookup(user_id):
     if not user_id:
         return None
 
-    try:
-        if isinstance(user_id, str):
-            user_id = ObjectId(user_id)
-    except Exception:
-        return None
+    if isinstance(user_id, str):
+        user_id = ObjectId(user_id)
 
     doc = users_collection.find_one({"_id": user_id})
     if not doc:

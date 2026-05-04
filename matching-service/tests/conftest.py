@@ -15,5 +15,5 @@ if str(_SERVICE_ROOT) not in sys.path:
 def client():
     app.config["TESTING"] = True
 
-    with app.test_client() as client:
-        yield client
+    with app.test_client() as client_ref:
+        yield client_ref
