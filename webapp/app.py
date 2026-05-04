@@ -17,6 +17,7 @@ from flask_login import (
 )
 from flask_socketio import SocketIO, emit, join_room
 from werkzeug.middleware.proxy_fix import ProxyFix
+from requests.exceptions import RequestException
 
 from dotenv import load_dotenv
 from models.user import create_user, update_user
@@ -427,6 +428,16 @@ def home():
         if "host_id" in event_dict:
             event_dict["host_id"] = str(event_dict["host_id"])
         event_dict["attendees"] = [str(a) for a in event_dict.get("attendees", [])]
+        event_dict["join_requests"] = [
+            str(j) for j in event_dict.get("join_requests", [])
+        ]
+        event_dict["rejected_requests"] = [
+            str(r) for r in event_dict.get("rejected_requests", [])
+        ]
+        if "created_at" in event_dict:
+            event_dict["created_at"] = event_dict["created_at"].isoformat()
+        if "updated_at" in event_dict:
+            event_dict["updated_at"] = event_dict["updated_at"].isoformat()
         events_payload.append(event_dict)
 
     best_event = None
@@ -442,7 +453,7 @@ def home():
         if response.ok:
             data = response.json()
             best_event = data.get("best_event")
-    except (ConnectionError, TimeoutError):
+    except RequestException:
         # Fallback to first event if matching service unavailable
         best_event = events_payload[0] if events_payload else None
 
