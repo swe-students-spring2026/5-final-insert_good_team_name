@@ -373,10 +373,11 @@ def home():
         )
     )
 
-    #best_event, _ = get_best_event(user, candidate_events, users_collection)
+    # best_event, _ = get_best_event(user, candidate_events, users_collection)
     best_event = get_best_event_match(user, candidate_events)
 
     return render_template("home.html", event=best_event)
+
 
 # For users
 @app.route("/events/<event_id>")

@@ -4,7 +4,6 @@ from utils.tag_transformer import transform_preferences_to_tags
 
 
 def create_user(data):
-    interests = data.get("interests", [])
     return {
         "email": data["email"],
         "password_hash": generate_password_hash(data["password"]),
@@ -14,8 +13,8 @@ def create_user(data):
         "neighborhood": data["neighborhood"],
         "pronouns": data.get("pronouns"),
         "drinking_smoking": {
-            "drinks": data.get("drinks") == "yes",
-            "smokes": data.get("smokes") == "yes",
+            "drinks": data.get("drinks") in ("yes", "on", True),
+            "smokes": data.get("smokes") in ("yes", "on", True),
         },
         "dietary_restrictions": data.get("dietary_restrictions", []),
         "hobbies": data.get("hobbies", ""),
