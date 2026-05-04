@@ -428,8 +428,12 @@ def home():
         if "host_id" in event_dict:
             event_dict["host_id"] = str(event_dict["host_id"])
         event_dict["attendees"] = [str(a) for a in event_dict.get("attendees", [])]
-        event_dict["join_requests"] = [str(j) for j in event_dict.get("join_requests", [])]
-        event_dict["rejected_requests"] = [str(r) for r in event_dict.get("rejected_requests", [])]
+        event_dict["join_requests"] = [
+            str(j) for j in event_dict.get("join_requests", [])
+        ]
+        event_dict["rejected_requests"] = [
+            str(r) for r in event_dict.get("rejected_requests", [])
+        ]
         if "created_at" in event_dict:
             event_dict["created_at"] = event_dict["created_at"].isoformat()
         if "updated_at" in event_dict:
