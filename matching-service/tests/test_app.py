@@ -3,6 +3,8 @@ from bson import ObjectId
 from app import app
 
 
+# pylint disabled here since this is just a helper for tests
+# pylint: disable=too-few-public-methods
 class FakeUsersCollection:
     """Fake collection to be used for testing"""
 
