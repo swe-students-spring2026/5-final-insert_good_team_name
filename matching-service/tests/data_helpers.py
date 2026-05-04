@@ -9,7 +9,7 @@ def make_user(
     return {
         "age": age,
         "algorithm_tags": algorithm_tags,
-        "location": loc,
+        "neighborhood": loc,
         "preferred_group_ranges": ranges or [(3, 10)],
         "dietary_restrictions": dietary or [],
         "drinking_smoking": {

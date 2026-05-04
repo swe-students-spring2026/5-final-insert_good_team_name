@@ -1,5 +1,6 @@
 import math
 from typing import List, Tuple
+from location_map import NYC_NEIGHBORHOOD_COORDS
 
 
 def compute_match_score(user, event, user_lookup) -> float:
@@ -29,7 +30,9 @@ def compute_match_score(user, event, user_lookup) -> float:
     # Event Score
 
     interest_event = list_similarity(user["algorithm_tags"], event["algorithm_tags"])
-    dist_score = distance_score(user["location"], event["location"])
+    dist_score = distance_score(
+        resolve_location(user["neighborhood"]), resolve_location(event["location"])
+    )
 
     event_score = 0.7 * interest_event + 0.3 * dist_score
 
@@ -39,12 +42,18 @@ def compute_match_score(user, event, user_lookup) -> float:
 
     members = [user_lookup(uid) for uid in member_ids if user_lookup(uid) is not None]
 
-    interest_group = sum(
-        list_similarity(user["algorithm_tags"], m["algorithm_tags"]) for m in members
-    ) / len(members)
+    if not members:
+        interest_group = 0.5
+        age_comp = 0.5
+    else:
 
-    group_ages = [m["age"] for m in members]
-    age_comp = age_score(user["age"], group_ages)
+        interest_group = sum(
+            list_similarity(user["algorithm_tags"], m["algorithm_tags"])
+            for m in members
+        ) / len(members)
+
+        group_ages = [m["age"] for m in members]
+        age_comp = age_score(user["age"], group_ages)
 
     group_score = 0.7 * interest_group + 0.3 * age_comp
 
@@ -198,3 +207,7 @@ def get_drinks_multiplier(user) -> float:
 
     # User chooses not to drink
     return 0.4
+
+
+def resolve_location(name):
+    return NYC_NEIGHBORHOOD_COORDS.get(name, (40.7128, -74.0060))  # NYC center
