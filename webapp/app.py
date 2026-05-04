@@ -442,10 +442,9 @@ def home():
 
     best_event = None
     try:
-        matching_url = (
-            os.environ.get("MATCHING_SERVICE_URL", "http://matching-service:5001")
-            .rstrip("/")
-        )
+        matching_url = os.environ.get(
+            "MATCHING_SERVICE_URL", "http://matching-service:5001"
+        ).rstrip("/")
         response = http_requests.post(
             f"{matching_url}/match",
             json={"user": user_payload, "events": events_payload},

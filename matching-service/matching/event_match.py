@@ -3,6 +3,40 @@ from typing import List, Tuple
 from location_map import NYC_NEIGHBORHOOD_COORDS
 
 
+def _event_similarity_score(user, event) -> float:
+    interest_event = list_similarity(
+        user.get("algorithm_tags", []), event.get("algorithm_tags", [])
+    )
+    dist_score = distance_score(
+        resolve_location(user.get("neighborhood")),
+        resolve_location(event.get("location")),
+    )
+    return 0.7 * interest_event + 0.3 * dist_score
+
+
+def _group_similarity_score(user, event, user_lookup) -> float:
+    member_ids = event.get("attendees", [])
+    members = [user_lookup(uid) for uid in member_ids if user_lookup(uid) is not None]
+
+    if not members:
+        interest_group = 0.5
+        age_comp = 0.5
+    else:
+        interest_group = sum(
+            list_similarity(user.get("algorithm_tags", []), m.get("algorithm_tags", []))
+            for m in members
+        ) / len(members)
+
+        group_ages = [m["age"] for m in members if m.get("age") is not None]
+        user_age = user.get("age")
+        if not group_ages or user_age is None:
+            age_comp = 0.5
+        else:
+            age_comp = age_score(user_age, group_ages)
+
+    return 0.7 * interest_group + 0.3 * age_comp
+
+
 def compute_match_score(user, event, user_lookup) -> float:
     """
     Calculates match score between a user and an event.
@@ -27,44 +61,8 @@ def compute_match_score(user, event, user_lookup) -> float:
     user_lookup = map for uid to struct
     """
 
-    # Event Score
-
-    interest_event = list_similarity(
-        user.get("algorithm_tags", []), event.get("algorithm_tags", [])
-    )
-    dist_score = distance_score(
-        resolve_location(user.get("neighborhood")),
-        resolve_location(event.get("location")),
-    )
-
-    event_score = 0.7 * interest_event + 0.3 * dist_score
-
-    # Group Score
-
-    member_ids = event.get("attendees", [])
-
-    members = [user_lookup(uid) for uid in member_ids if user_lookup(uid) is not None]
-
-    if not members:
-        interest_group = 0.5
-        age_comp = 0.5
-    else:
-
-        interest_group = sum(
-            list_similarity(user.get("algorithm_tags", []), m.get("algorithm_tags", []))
-            for m in members
-        ) / len(members)
-
-        group_ages = [m["age"] for m in members if m.get("age") is not None]
-        user_age = user.get("age")
-        if not group_ages or user_age is None:
-            age_comp = 0.5
-        else:
-            age_comp = age_score(user_age, group_ages)
-
-    group_score = 0.7 * interest_group + 0.3 * age_comp
-
-    # Size Score
+    event_score = _event_similarity_score(user, event)
+    group_score = _group_similarity_score(user, event, user_lookup)
 
     size_score = calculate_size_score(
         event.get("capacity", 6), user.get("preferred_group_ranges", [(3, 10)])
