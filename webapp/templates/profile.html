@@ -22,7 +22,7 @@
             <p class="view-mode"><strong>Neighborhood:</strong> {{ current_user.data.get('neighborhood', '—') }}</p>
             <div class="edit-mode" style="display:none;">
                 <label>Neighborhood:</label>
-                <select name="neighborhood">
+                <select name="neighborhood" required>
                     <option value="">Select a neighborhood...</option>
                     <option value="Battery Park City" {{ 'selected' if current_user.data.get('neighborhood') == 'Battery Park City' }}>Battery Park City</option>
                     <option value="Chelsea" {{ 'selected' if current_user.data.get('neighborhood') == 'Chelsea' }}>Chelsea</option>

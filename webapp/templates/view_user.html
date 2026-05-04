@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ user.get('first_name', '') }}'s Profile — DinnerMeet{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1>{{ user.get('first_name', '') }} {{ user.get('last_initial', '') }}.</h1>
+        <a href="javascript:history.back()" class="btn-outline-dark" style="margin-top: 0;">← Back</a>
+    </div>
+
+    <div class="profile-details">
+        <div class="profile-section">
+            <h3>About</h3>
+            <p><strong>Age:</strong> {{ user.get('age', '—') }}</p>
+            <p><strong>Neighborhood:</strong> {{ user.get('neighborhood', '—') }}</p>
+            <p><strong>Pronouns:</strong> {{ user.get('pronouns', '—') }}</p>
+            <p><strong>Job/Student:</strong> {{ user.get('job', '—') }}</p>
+        </div>
+
+        <div class="profile-section">
+            <h3>Preferences</h3>
+            <p>
+                <strong>Drinks:</strong> {{ 'Yes' if user.get('drinking_smoking', {}).get('drinks') else 'No' }}
+                &nbsp;|&nbsp;
+                <strong>Smokes:</strong> {{ 'Yes' if user.get('drinking_smoking', {}).get('smokes') else 'No' }}
+            </p>
+            <p><strong>Dietary Restrictions:</strong>
+                {% if user.get('dietary_restrictions') %}
+                    {{ user.get('dietary_restrictions') | join(', ') }}
+                {% else %}
+                    —
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="profile-section">
+            <h3>Interests</h3>
+            {% set interests = user.get('interests', []) %}
+            {% if interests %}
+                <div class="selected-tags" style="margin-top: 0.5rem;">
+                    {% for interest in interests %}
+                        <div class="tag-chip" style="pointer-events: none;">{{ interest }}</div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>—</p>
+            {% endif %}
+        </div>
+
+        <div class="profile-section">
+            <h3>Hobbies</h3>
+            <p>{{ user.get('hobbies', '—') }}</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 1.5rem;">
+        <a href="/chat/{{ user._id }}" class="btn" style="display: inline-block;">Message</a>
+    </div>
+</div>
+{% endblock %}

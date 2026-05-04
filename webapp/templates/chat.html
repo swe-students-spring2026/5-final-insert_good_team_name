@@ -1,41 +1,62 @@
 {% extends "base.html" %}
+{% block title %}Chat — DinnerMeet{% endblock %}
+
 {% block content %}
+<div class="chat-container">
+    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+        <a href="/messages" class="btn-outline-dark" style="display: inline-block; margin-top: 0;">← Back</a>
+        <h1 style="margin-bottom: 0;">Chat with {{ other_name }}</h1>
+    </div>
 
-<h2>Chat with {{ otherUsername }}</h2>
+    <div class="chat-messages" id="messages">
+        {% for msg in messages %}
+            <div class="message-wrapper {% if msg.sender == current_user.id %}wrapper-mine{% else %}wrapper-theirs{% endif %}">
+                {% if msg.sender != current_user.id %}
+                    <span class="message-sender">{{ other_name }}</span>
+                {% endif %}
+                <div class="message {% if msg.sender == current_user.id %}message-mine{% else %}
+                    {% if 'I would like to join' in msg.message %}message-system{% else %}message-theirs{% endif %}
+                {% endif %}">
+                    <p>{{ msg.message }}</p>
+                </div>
+                {% if msg.sender == current_user.id %}
+                    <span class="message-sender" style="text-align: right;">You</span>
+                {% endif %}
+            </div>
+        {% endfor %}
+        <div id="sent-indicator" style="display:none; text-align: right; font-size: 0.8rem; color: #27ae60; margin-top: 0.25rem;">✓ Sent</div>
+    </div>
 
-<div id="messages">
-    {% for msg in messages %}
-        <div>
-            <b>{{ msg.sender }}:</b> {{ msg.message }}
-        </div>
-    {% endfor %}
+    <div class="chat-input">
+        <input id="messageInput" type="text" placeholder="Type a message..." />
+        <button onclick="sendMessage()" class="btn" style="margin-top: 0;">Send</button>
+    </div>
+
+    {% if shared_events %}
+    <div class="shared-events">
+        <h3>Shared Events</h3>
+        <ul class="event-list">
+            {% for event in shared_events %}
+                <li class="event-card">
+                    <h3>{{ event.title }}</h3>
+                    <p class="event-meta">{{ event.datetime }} · {{ event.get('location', '') }}</p>
+                    <a href="/events/{{ event._id }}" class="btn" style="margin-top: 0.5rem; display: inline-block; color: #fff;">View Event</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
 </div>
 
-<input id="messageInput" type="text" placeholder="Type message..." />
-<button onclick="sendMessage()">Send</button>
-
-<hr>
-
-<h3>Events with {{ otherUsername }}</h3>
-
-{% if shared_events %}
-    <ul>
-        {% for event in shared_events %}
-            <li>
-                {{ event.title }}
-            </li>
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No shared events yet.</p>
-{% endif %}
-
 <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-
-<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
-
 <script>
     const ROOM_ID = "{{ current_user.id }}_{{ otherUsername }}";
+    const current_user_id = "{{ current_user.id }}";
+    const other_name = "{{ other_name }}";
 </script>
-
-{% endblock %} 
+<script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+<script>
+    const messagesDiv = document.getElementById("messages");
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+</script>
+{% endblock %}
