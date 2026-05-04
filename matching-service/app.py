@@ -5,7 +5,7 @@ from flask import Flask, jsonify, request
 from bson import ObjectId
 
 from matching.event_match import compute_match_score
-from webapp.db import users_collection
+from db import users_collection
 
 app = Flask(__name__)
 
