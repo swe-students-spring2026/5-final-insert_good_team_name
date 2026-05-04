@@ -32,11 +32,11 @@ def test_no_interest_overlap():
 
 
 def test_distance_penalty():
-    user = make_user(25, ["outdoors"], loc=(0, 0))
-    member = make_user(25, ["outdoors"], loc=(0, 0))
+    user = make_user(25, ["outdoors"], loc="Chelsea")
+    member = make_user(25, ["outdoors"], loc="Chelsea")
 
-    near_event = make_event(["outdoors"], [member], loc=(0, 0))
-    far_event = make_event(["outdoors"], [member], loc=(50, 50))
+    near_event = make_event(["outdoors"], [member], loc="Chelsea")
+    far_event = make_event(["outdoors"], [member], loc="Inwood")
 
     near_score = compute_match_score(user, near_event, fake_user_lookup)
     far_score = compute_match_score(user, far_event, fake_user_lookup)
