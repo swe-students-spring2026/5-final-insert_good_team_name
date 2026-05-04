@@ -187,12 +187,16 @@ def handle_send_message(data):
     msg = create_message(room, current_user.id, text)
     save_message(messages_collection, msg)
 
-    emit("receive_message", {
-        "room_id": room,
-        "sender": current_user.id,
-        "message": text,
-        "timestamp": msg["timestamp"].isoformat(),
-    }, to=room)
+    emit(
+        "receive_message",
+        {
+            "room_id": room,
+            "sender": current_user.id,
+            "message": text,
+            "timestamp": msg["timestamp"].isoformat(),
+        },
+        to=room,
+    )
 
 
 @app.route("/events")
@@ -414,7 +418,9 @@ def home():
 
     best_event = None
     try:
-        matching_url = os.environ.get("MATCHING_SERVICE_URL", "http://matching-service:5001")
+        matching_url = os.environ.get(
+            "MATCHING_SERVICE_URL", "http://matching-service:5001"
+        )
         response = http_requests.post(
             f"{matching_url}/match",
             json={"user": user_payload, "events": events_payload},
@@ -423,11 +429,12 @@ def home():
         if response.ok:
             data = response.json()
             best_event = data.get("best_event")
-    except Exception:
+    except (ConnectionError, TimeoutError):
         # Fallback to first event if matching service unavailable
         best_event = events_payload[0] if events_payload else None
 
     return render_template("home.html", event=best_event)
+
 
 # For users
 @app.route("/events/<event_id>")
@@ -498,7 +505,9 @@ def apply_event(event_id):
     room_id = "_".join(sorted([user_id, host_id]))
 
     # send automated message
-    msg_text = f"Hi! I would like to join your event: '{event.get('title', 'Untitled')}'."
+    msg_text = (
+        f"Hi! I would like to join your event:" f" '{event.get('title', 'Untitled')}'."
+    )
     msg = create_message(room_id, user_id, msg_text)
 
     save_message(messages_collection, msg)
