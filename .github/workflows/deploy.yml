@@ -23,11 +23,15 @@ jobs:
             cd /opt/5-final-insert_good_team_name
             git fetch --all
             git reset --hard origin/main
-            if command -v docker-compose >/dev/null 2>&1; then
+            # Prefer Compose v2 (avoids docker-compose 1.29.x + modern Docker KeyError: ContainerConfig)
+            if docker compose version >/dev/null 2>&1; then
+              docker compose up -d --build
+              docker compose ps
+            elif command -v docker-compose >/dev/null 2>&1; then
               docker-compose up -d --build
               docker-compose ps
             else
-              docker compose up -d --build
-              docker compose ps
+              echo "Neither 'docker compose' nor 'docker-compose' is available." >&2
+              exit 1
             fi
             docker image prune -f
