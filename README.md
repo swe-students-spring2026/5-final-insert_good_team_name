@@ -6,6 +6,8 @@
 
 An exercise to put to practice software development teamwork, subsystem communication, containers, deployment, and CI/CD pipelines. See [instructions](./instructions.md) for details.
 
+**Deployed app:** [http://137.184.194.187:3000/](http://137.184.194.187:3000/)
+
 ## Team Members
 - [Lily](https://github.com/lilylorand)
 - [Sunil](https://github.com/SunilParab)
