@@ -106,7 +106,7 @@ def test_profile_trailing_slash(client):
 
 
 def test_signup_existing_user(client, monkeypatch):
-    from app import users_collection
+    users_collection = app_module.users_collection
 
     # mock DB: user already exists
     users_collection.find_one = MagicMock(return_value={"email": "test@test.com"})
@@ -138,7 +138,7 @@ def test_signup_existing_user(client, monkeypatch):
 
 
 def test_signup_success(client, monkeypatch):
-    from app import users_collection
+    users_collection = app_module.users_collection
 
     # no existing user
     users_collection.find_one = MagicMock(return_value=None)
@@ -180,7 +180,7 @@ def test_edit_event_not_found(client, monkeypatch):
 
     fake_login(monkeypatch, user_id)
 
-    from app import events_collection
+    events_collection = app_module.events_collection
 
     events_collection.find_one = MagicMock(return_value=None)
 
@@ -197,7 +197,7 @@ def test_edit_event_unauthorized(client, monkeypatch):
 
     fake_login(monkeypatch, user_id)
 
-    from app import events_collection
+    events_collection = app_module.events_collection
 
     events_collection.find_one = MagicMock(
         return_value={"_id": event_id, "host_id": other_host_id}
@@ -215,7 +215,7 @@ def test_edit_event_get_success(client, monkeypatch):
 
     fake_login(monkeypatch, user_id)
 
-    from app import events_collection
+    events_collection = app_module.events_collection
 
     events_collection.find_one = MagicMock(
         return_value={"_id": event_id, "host_id": user_id}
@@ -239,8 +239,7 @@ def test_edit_event_post_success(client, monkeypatch):
 
     fake_login(monkeypatch, user_id)
 
-    from app import events_collection
-
+    events_collection = app_module.events_collection
     events_collection.find_one = MagicMock(return_value=event)
     events_collection.update_one = MagicMock()
 
