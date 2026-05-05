@@ -10,6 +10,18 @@ from db import users_collection
 app = Flask(__name__)
 
 
+def serialize_event(event):
+    if not event:
+        return None
+
+    event = dict(event)
+
+    if "_id" in event:
+        event["_id"] = str(event["_id"])
+
+    return event
+
+
 def mongo_user_lookup(user_id):
     """
     Fetch full user document from MongoDB
@@ -66,15 +78,3 @@ def match():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "5001")), debug=True)
-
-
-def serialize_event(event):
-    if not event:
-        return None
-
-    event = dict(event)
-
-    if "_id" in event:
-        event["_id"] = str(event["_id"])
-
-    return event
