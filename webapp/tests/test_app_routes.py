@@ -1,9 +1,21 @@
 # pylint: disable=redefined-outer-name
 
-import pytest
-from app import app
 from unittest.mock import MagicMock
+
+import pytest
 from bson import ObjectId
+
+import app as app_module
+from app import app
+
+
+def fake_login(monkeypatch, user_id):
+    fake_user = MagicMock()
+    fake_user.id = str(user_id)
+    fake_user.is_authenticated = True
+
+    app.config["LOGIN_DISABLED"] = True
+    monkeypatch.setattr(app_module, "current_user", fake_user)
 
 
 @pytest.fixture
@@ -166,15 +178,7 @@ def test_signup_success(client, monkeypatch):
 def test_edit_event_not_found(client, monkeypatch):
     user_id = ObjectId()
 
-    fake_user = MagicMock()
-    fake_user.id = str(user_id)
-    fake_user.is_authenticated = True
-
-    app.login_manager._user_callback = lambda _: fake_user
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(user_id)
-        sess["_fresh"] = True
+    fake_login(monkeypatch, user_id)
 
     from app import events_collection
 
@@ -191,15 +195,7 @@ def test_edit_event_unauthorized(client, monkeypatch):
     other_host_id = ObjectId()
     event_id = ObjectId()
 
-    fake_user = MagicMock()
-    fake_user.id = str(user_id)
-    fake_user.is_authenticated = True
-
-    app.login_manager._user_callback = lambda _: fake_user
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(user_id)
-        sess["_fresh"] = True
+    fake_login(monkeypatch, user_id)
 
     from app import events_collection
 
@@ -217,15 +213,7 @@ def test_edit_event_get_success(client, monkeypatch):
     user_id = ObjectId()
     event_id = ObjectId()
 
-    fake_user = MagicMock()
-    fake_user.id = str(user_id)
-    fake_user.is_authenticated = True
-
-    app.login_manager._user_callback = lambda _: fake_user
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(user_id)
-        sess["_fresh"] = True
+    fake_login(monkeypatch, user_id)
 
     from app import events_collection
 
@@ -249,15 +237,7 @@ def test_edit_event_post_success(client, monkeypatch):
     event_id = ObjectId()
     event = {"_id": event_id, "host_id": user_id, "title": "Old Title"}
 
-    fake_user = MagicMock()
-    fake_user.id = str(user_id)
-    fake_user.is_authenticated = True
-
-    app.login_manager._user_callback = lambda _: fake_user
-
-    with client.session_transaction() as sess:
-        sess["_user_id"] = str(user_id)
-        sess["_fresh"] = True
+    fake_login(monkeypatch, user_id)
 
     from app import events_collection
 
